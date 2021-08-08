@@ -17,7 +17,7 @@ import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
 import rs.ac.bg.fon.mmklab.peer.service.server_communication.ServerCommunicator;
 import rs.ac.bg.fon.mmklab.peer.service.stream.receive.Receiver;
 import rs.ac.bg.fon.mmklab.peer.ui.components.audio_player.AudioPlayer;
-import rs.ac.bg.fon.mmklab.peer.ui.components.design.TabDesign;
+//import rs.ac.bg.fon.mmklab.peer.ui.components.design.TabDesign;
 
 import javax.sound.sampled.LineUnavailableException;
 import java.io.IOException;
