@@ -30,8 +30,7 @@ public final class BooksFinder extends SimpleFileVisitor<Path> {
             System.err.println("Greska (BooksFinder -> fetchBooks): ne moze da nadje localhost adresu");
         }
         //TODO: Potrebno je bolje obraditi gresku ovde, ali za sada je samo poboljsana validacija
-        //TODO:Mora negde da se obradi i InvalidPathException (kada posalje neki String koji uopste ne moze da se pretvori u putanju)
-        Path pathToBooksFolder = Paths.get(booksFolder);
+
 //        provera da li je prosledjena putanja postojeca
         //if (Files.notExists(pathToBooksFolder))
 
@@ -40,6 +39,8 @@ public final class BooksFinder extends SimpleFileVisitor<Path> {
             System.err.println("Greska (fetchBooks): Prosledjena putanja ka folderu sa knjigama je nepostojeca");
             return null;
         }
+
+        Path pathToBooksFolder = Paths.get(booksFolder);
 
         try {
 //            trebalo bi da moze ovako odmah da se strim path-ova mapira u strim fajlova pa da se to sve ubaci u listu. Files.walk vraca stream

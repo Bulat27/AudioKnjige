@@ -1,16 +1,18 @@
 package rs.ac.bg.fon.mmklab.peer.service.util;
 
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 
 public final class FileValidator {
 
     private FileValidator(){}
 
     public static boolean isValid(String pathString) {
-        Path pathToConfigDir = Paths.get(pathString);
+        Path pathToConfigDir;
+        try {
+            pathToConfigDir = Paths.get(pathString);
+        } catch (InvalidPathException | NullPointerException ex) {
+            return false;
+        }
 
         return exists(pathToConfigDir) && Files.isDirectory(pathToConfigDir, LinkOption.NOFOLLOW_LINKS) && checkPermissions(pathToConfigDir);
     }
