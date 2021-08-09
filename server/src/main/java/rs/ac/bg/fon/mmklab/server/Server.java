@@ -25,6 +25,8 @@ public class Server {
         ServerSocket receiveSocket;
         Socket communicationSocket;
 
+        //Iz nekog razloga mi ovde prijavljuje gresku kad ga stavim u try-with-resources.
+        //TODO:Videti zasto prijavljuje gresku i zatvoriti resurs.
         try {
             receiveSocket = new ServerSocket(port);
             System.out.println("SERVER: STARTED");

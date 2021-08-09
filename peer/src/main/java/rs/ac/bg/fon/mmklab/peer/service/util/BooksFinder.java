@@ -12,6 +12,7 @@ import java.net.UnknownHostException;
 import java.nio.file.*;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 
@@ -42,9 +43,10 @@ public final class BooksFinder extends SimpleFileVisitor<Path> {
 
         Path pathToBooksFolder = Paths.get(booksFolder);
 
-        try {
+        //TODO: Proveriti da nisam ovde nesto pokvario. Samo sam sacuvao referencu ka streamu i stavio je u try-with-resources
+        try(Stream<Path> pathStream = Files.walk(pathToBooksFolder, FOLLOW_LINKS)) {
 //            trebalo bi da moze ovako odmah da se strim path-ova mapira u strim fajlova pa da se to sve ubaci u listu. Files.walk vraca stream
-            List<File> filesInDirectory = Files.walk(pathToBooksFolder, FOLLOW_LINKS).
+            List<File> filesInDirectory = pathStream.
                     map(path -> new File(path.toString()))
                     .collect(Collectors.toList());
             System.out.println("(fetchBooks): velicina liste: " + filesInDirectory.size() + ", racuna se i folder u kom se nalaze knjige");
