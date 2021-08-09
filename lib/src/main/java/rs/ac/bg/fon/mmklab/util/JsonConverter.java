@@ -21,7 +21,9 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JsonConverter {
+public final class JsonConverter {
+
+    private JsonConverter(){}
 
     public static <T> String toJSON(T obj){
         ObjectMapper mapper = new ObjectMapper();

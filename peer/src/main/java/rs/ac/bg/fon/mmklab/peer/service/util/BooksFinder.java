@@ -15,7 +15,9 @@ import java.util.stream.Collectors;
 
 import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 
-public class BooksFinder extends SimpleFileVisitor<Path> {
+public final class BooksFinder extends SimpleFileVisitor<Path> {
+
+    private BooksFinder(){}
 
     public static List<AudioBook> fetchBooks(Configuration configuration) {
         String booksFolder = configuration.getPathToBookFolder();
