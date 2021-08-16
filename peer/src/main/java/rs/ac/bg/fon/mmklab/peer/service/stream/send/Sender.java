@@ -33,11 +33,11 @@ public class Sender extends Service<Configuration> {
                     System.out.println("Sender: STARTED");
 
                     while (true) {
-                        System.out.println("Sender: awaiting connection");
+//                        System.out.println("Sender: awaiting connection");
 
                         communicationSocket = receiveSocket.accept();
                         PeerHandler handler = PeerHandler.createHandler(communicationSocket, configuration);  /// treba ovde try/catch
-                        System.out.println("Desilo se prihvatanje veze i otvaranje soketa");
+//                        System.out.println("Desilo se prihvatanje veze i otvaranje soketa");
                         handler.start();
                     }
                 } catch (IOException e) {

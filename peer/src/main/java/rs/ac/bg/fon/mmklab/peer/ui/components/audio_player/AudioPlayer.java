@@ -7,7 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import rs.ac.bg.fon.mmklab.peer.service.stream.Signal;
+import rs.ac.bg.fon.mmklab.peer.service.stream.signal.Signal;
 import rs.ac.bg.fon.mmklab.peer.service.stream.receive.Receiver;
 import rs.ac.bg.fon.mmklab.peer.service.stream.receive.Signaler;
 

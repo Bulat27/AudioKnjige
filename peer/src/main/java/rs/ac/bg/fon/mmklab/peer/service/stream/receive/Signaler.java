@@ -2,7 +2,7 @@ package rs.ac.bg.fon.mmklab.peer.service.stream.receive;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import rs.ac.bg.fon.mmklab.peer.service.stream.Signal;
+import rs.ac.bg.fon.mmklab.peer.service.stream.signal.Signal;
 
 import java.io.IOException;
 
@@ -23,19 +23,19 @@ public class Signaler extends Service<Signal> {
             protected Object call() throws Exception {
                 switch (signal) {
                     case TERMINATE: {
-                        System.out.println(">>   TERMINATE");
+                        System.out.println(">>   TERMINATE -------- nit: " + Thread.currentThread());
 
                         terminate();
                     }
                     break;
                     case PAUSE: {
-                        System.out.println(">>  PAUSE ");
+                        System.out.println(">>  PAUSE ---- nit: " + Thread.currentThread());
 
                         pause();
                     }
                     break;
                     case RESUME: {
-                        System.out.println(">>   RESUME");
+                        System.out.println(">>   RESUME ----- nit: " + Thread.currentThread());
 
                         resume();
                     }
@@ -78,6 +78,6 @@ public class Signaler extends Service<Signal> {
 
     private void resume(){
         receiver.getToSender().println(Signal.RESUME);
-        System.out.println("POslat signal posiljaocu da nastavi slanje");
+        System.out.println("Poslat signal posiljaocu da nastavi slanje");
     }
 }

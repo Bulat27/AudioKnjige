@@ -1,6 +1,7 @@
 package rs.ac.bg.fon.mmklab.peer.service.stream.send;
 
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
+import rs.ac.bg.fon.mmklab.peer.service.stream.signal.Signal;
 
 import javax.sound.sampled.AudioInputStream;
 import java.io.*;
@@ -22,6 +23,9 @@ public class PeerHandlerInstance {
     private File audioFile;
     private AudioInputStream audioInputStream;
     private long framesSent;
+
+
+    private Signal signal;
 
     //    getter metode
     public Socket getSocket() {
@@ -64,10 +68,12 @@ public class PeerHandlerInstance {
         return framesSent;
     }
 
+    public Signal getSignal() { return signal; }
+
 //    kraj getter metoda
 
 
-//    za promenljive koje moramo da postavljamo u runtime
+    //    za promenljive koje moramo da postavljamo u runtime
     public void setRemotePortUDP(int remotePortUDP) {
         this.remotePortUDP = remotePortUDP;
     }
@@ -84,9 +90,10 @@ public class PeerHandlerInstance {
         this.framesSent = framesSent;
     }
 
+    public void setSignal(Signal signal) { this.signal = signal; }
 
 
-//    konstruktor
+    //    konstruktor
     private PeerHandlerInstance(Socket socket, Configuration configuration) throws IOException {
         this.socket = socket;
         this.configuration = configuration;
@@ -95,11 +102,12 @@ public class PeerHandlerInstance {
         this.toReceiver = new PrintStream(socket.getOutputStream());
         this.fromReceiver = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         /* za novu napravljenu instancu postavljamo adresu primaoca na osnovu soketa prosledjenog iz Sender niti
-        *  postavljamo novi obican datagram soket preko koga cemo da saljemo pakete audio snimka */
+         *  postavljamo novi obican datagram soket preko koga cemo da saljemo pakete audio snimka */
         this.receiverAddress = this.socket.getInetAddress();
-        this.datagramSocket =  new DatagramSocket();
+        this.datagramSocket = new DatagramSocket();
 
         this.framesSent = 0;
+        this.signal = Signal.RUNNING;
     }
 
     public static PeerHandlerInstance createHandlerInstance(Socket socket, Configuration configuration) throws IOException {

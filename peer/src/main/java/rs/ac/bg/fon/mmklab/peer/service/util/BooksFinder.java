@@ -49,7 +49,7 @@ public final class BooksFinder extends SimpleFileVisitor<Path> {
             List<File> filesInDirectory = pathStream.
                     map(path -> new File(path.toString()))
                     .collect(Collectors.toList());
-            System.out.println("(fetchBooks): velicina liste: " + filesInDirectory.size() + ", racuna se i folder u kom se nalaze knjige");
+            System.out.println("(fetchBooks): velicina liste: " + (filesInDirectory.size() - 1));
             filesInDirectory.forEach(file -> file.toString());
 
 //            izbacujemo sve fajlove koji nisu u zadatom formatu, pretpostavka je da ce svi fajlovi bit u istom formatu: .wav

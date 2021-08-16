@@ -4,10 +4,12 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import rs.ac.bg.fon.mmklab.book.AudioBook;
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
+import rs.ac.bg.fon.mmklab.peer.service.stream.signal.Signal;
 import rs.ac.bg.fon.mmklab.peer.service.util.BooksFinder;
 import rs.ac.bg.fon.mmklab.util.JsonConverter;
 
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
 import java.net.*;
 
@@ -29,8 +31,8 @@ public class PeerHandler extends Service {
         return instance;
     }
 
-//    pomocna metoda kako bi mogao u createTask da prosledim trenutni objekat
-    private PeerHandler thisHandler (){
+    //    pomocna metoda kako bi mogao u createTask da prosledim trenutni objekat
+    private PeerHandler thisHandler() {
         return this;
     }
 
@@ -74,34 +76,22 @@ public class PeerHandler extends Service {
         return null;
     }
 
-    private void initiateSending(AudioBook book) throws IOException {
+    private void initiateSending(AudioBook book) throws UnsupportedAudioFileException, IOException {
 
-        /*  postavljamo audio fajl iz koga cemo da ucitavamo deo po deo i da saljemo na mrezu */
+        /*  postavljamo audio fajl iz koga cemo da ucitavamo deo po deo i da saljemo na mrezu, kao i audioInputStream iz tog fajla */
         instance.setAudioFile(BooksFinder.getBook(book, instance.getConfiguration())); // ovde bi mogla da se odradi provera dal imamo tu knjigu kod nas
-
         //preko klase AudioSystem se pristupa svim resursima u sistemu, tipa fajlovi, mikrofon itd... takodje mozemo da vidimo koji je format audia
         try {
             instance.setAudioInputStream(AudioSystem.getAudioInputStream(instance.getAudioFile()));// UnsupportedFileException  // IOException
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // veličina frejma
-        int frameSize = instance.getAudioInputStream().getFormat().getFrameSize();
 
-        //definisanje bafera koje saljemo na mrezu
-        byte[] sendBuffer = new byte[1024 * frameSize]; // ovde da se proveri da li je okej da bude 1024 bajta
-        byte[] confirmationMessage = new byte[10];
-//        paket koji dobijamo od primaoca da bismo znali kad je završio sa obrađivanjem poslednjeg paketa koji smo mu poslali
-
-        /* paketi koje saljemo na mrezu*/
-        DatagramPacket confirmationPacket = new DatagramPacket(confirmationMessage, confirmationMessage.length);
-
-        System.out.println("Krecemo sa slanjem");
-        System.out.println("Adresa primaoca: " + instance.getReceiverAddress().toString() + "; port primaoca: " + instance.getRemotePortUDP());
+        System.out.println("Krecemo sa slanjem; Adresa primaoca: " + instance.getReceiverAddress().toString() + "; port primaoca: " + instance.getRemotePortUDP());
 
 
 //        ovo je proba da bismo mogli posle da nastavimo slanje
-        send(instance, sendBuffer, frameSize, confirmationPacket);
+        send();
 
 
         // zatvaranje svih soketa i tokova
@@ -116,21 +106,110 @@ public class PeerHandler extends Service {
         System.out.println("Ceo fajl je procitan, i soket zatvoren");
     }
 
-    public void send(PeerHandlerInstance instance, byte[] sendBuffer,int frameSize,  DatagramPacket confirmationPacket) throws IOException {
-        while ((instance.getAudioInputStream().read(sendBuffer)) != -1) { // kada se dodje do kraja toka vraca -1  // IOException
+    public void send() throws UnsupportedAudioFileException, IOException {
+        System.out.println("U toku je slanje iz niti: " + Thread.currentThread());
+        System.out.println("Hash code hendlera u PeerHandler-u: " + this.hashCode());
+
+
+
+        // veličina frejma
+        int frameSize = instance.getAudioInputStream().getFormat().getFrameSize();
+
+        //definisanje bafera koje saljemo na mrezu
+        byte[] sendBuffer = new byte[1024 * frameSize]; // ovde da se proveri da li je okej da bude 1024 bajta
+        byte[] confirmationMessage = new byte[10];
+//        paket koji dobijamo od primaoca da bismo znali kad je završio sa obrađivanjem poslednjeg paketa koji smo mu poslali
+
+        /* paketi koje saljemo na mrezu*/
+        DatagramPacket confirmationPacket = new DatagramPacket(confirmationMessage, confirmationMessage.length);
+
+
+        while (true) {  // IOException
+
+            /*Prvo radimo proveru da li nam je stigo neki signal on primaoca*/
+
+            synchronized (this) {
+                switch (instance.getSignal()) {
+                    case RUNNING:
+                        break;
+                    case PAUSE: {
+                        try {
+                            this.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    break;
+                    case REWIND:
+                        break;
+                    case FORWARD:
+                        break;
+                    case TERMINATE: {
+                        instance.getToReceiver().println("Signal accepted");
+                    }
+                    return;
+                    default:
+                        break;
+                }
+            }
+            /*switch (instance.getSignal()) {
+                case RUNNING:
+                    break;
+                case PAUSE: {
+                    instance.getToReceiver().println("Signal accepted");
+                    System.out.println("(Peer handler -> send): korisnik zausatavio stream, do sada je porcitano frejmova: " + instance.getFramesSent() + "; nit: " + Thread.currentThread());
+                    try {
+                        instance.getAudioInputStream().close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    instance.setSignal(Signal.ON_HOLD);
+                    continue;
+                }
+                case ON_HOLD:{
+//                    System.out.println("State: ON_HOLD");
+                    continue;
+                }
+                case RESUME: {
+                    System.out.println("Usli smo u RESUME deo");
+                    instance.setAudioInputStream(AudioSystem.getAudioInputStream(instance.getAudioFile()));
+                    instance.getAudioInputStream().skip(instance.getFramesSent() * frameSize);
+                    System.out.println("Premotali smo za " + instance.getFramesSent() * frameSize + " frejmova");
+                    instance.setSignal(Signal.RUNNING);
+                }
+                break;
+                case REWIND:
+                    break;
+                case FORWARD:
+                    break;
+                case TERMINATE:{
+                    instance.getToReceiver().println("Signal accepted");
+                }
+                return;
+                default:
+                    break;
+            }*/
+
+
+            if ((instance.getAudioInputStream().read(sendBuffer)) == -1) {// kada se dodje do kraja toka vraca -1
+                System.out.println("Dosli smo do kraja fajla!");
+                return;
+            }
+
 //            kreiranje paketa koji saljemo na mrezu
             DatagramPacket dataPackage = new DatagramPacket(sendBuffer, sendBuffer.length, instance.getReceiverAddress(), instance.getRemotePortUDP());
 
             /* trenutak slanja paketa */
             instance.getDatagramSocket().send(dataPackage);  // IOException
-            instance.setFramesSent(sendBuffer.length / frameSize); // azuriramo broj poslatih frejmova
+            instance.setFramesSent(instance.getFramesSent() + sendBuffer.length / frameSize); // azuriramo broj poslatih frejmova
 
 //            ovaj potvrdni paket nam omogućava da blokiramo slanje sve dok primalac ne primi paket, i dok ga ne prosledi na mikser
             instance.getDatagramSocket().receive(confirmationPacket); // IOException
         }
     }
 
-    public void closeUDPConnection(DatagramSocket ds){
+    public void closeUDPConnection(DatagramSocket ds) {
         ds.close();
     }
 
@@ -139,7 +218,6 @@ public class PeerHandler extends Service {
         ps.close();
         br.close();
     }
-
 
 
 }
