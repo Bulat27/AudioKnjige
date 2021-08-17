@@ -16,9 +16,8 @@ public class ListExchanger {
 //        System.out.println("(initialConnectToServer): Lista knjiga koja se salje serveru ima sledeci oblik: " + JsonConverter.bookListToJSON(listOfBooks));
         System.out.println("(initialConnectToServer): Lista knjiga koja se salje serveru ima sledeci oblik: " + JsonConverter.toJSON(listOfBooks));
 
-        streamToServer.println("send_books");
+        streamToServer.println(Request.POST_BOOKS);
 
-//        streamToServer.println(JsonConverter.bookListToJSON(listOfBooks));
         streamToServer.println(JsonConverter.toJSON(listOfBooks));
 
     }
@@ -26,7 +25,7 @@ public class ListExchanger {
     //  metoda kojom od servera dovlacimo listu knjiga koje nude trenutno drugi peer-ovi
     public static List<AudioBook> getAvailableBooks(BufferedReader fromServer, PrintStream toServer) {
         List<AudioBook> result = null;
-        toServer.println("get_books");
+        toServer.println(Request.GET_BOOKS);
         try {
             String jsonList = fromServer.readLine();
             result = JsonConverter.jsonToBookList(jsonList);

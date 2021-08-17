@@ -1,6 +1,7 @@
 package rs.ac.bg.fon.mmklab.server;
 
 import rs.ac.bg.fon.mmklab.book.AudioBook;
+import rs.ac.bg.fon.mmklab.communication.peer_to_server.Request;
 import rs.ac.bg.fon.mmklab.util.JsonConverter;
 
 import java.io.*;
@@ -28,31 +29,41 @@ ClientHandler extends Thread {
     }
 
 
-
     @Override
     public void run() {
 
         /*ovde treba da ocekujemo od klijenta da nam posalje listu knjiga koje on moze da ponudi, to bismo mogli iz nekog JSON-a da izvucemo te podatke*/
 
-        int sizeOfBookList;
-        List<AudioBook> list;
+        List<AudioBook> list = null;
         try {
-            String request = fromPeer.readLine();
-            switch (request){
-                case "send_books": {
+            Request req = Request.valueOf(fromPeer.readLine());
+            switch (req) {
+                case POST_BOOKS: { // korisnik hoce da postavi knjige
                     String jsonList = fromPeer.readLine();
-                    if(JsonConverter.isValidListOfBooks(jsonList)){
+                    if (JsonConverter.isValidListOfBooks(jsonList)) {
                         System.out.println("Primljeni json sadrzaj se poklapa sa json semom");
                         list = JsonConverter.jsonToBookList(jsonList);
                         Server.updateAvailableBooks(list);
 //                        list.forEach(e -> System.out.println(e.toString()));
-                    }
-                    else System.err.println("Korisnik nema knjiga na raspolaganju u folderu koji je naveo");
+                    } else System.err.println("Korisnik nema knjiga na raspolaganju u folderu koji je naveo");
                 }
                 break;
-                case "get_books": {
-//                    toPeer.println(JsonConverter.bookListToJSON(Server.getAvailableBooks()));
+                case GET_BOOKS: {
                     toPeer.println(JsonConverter.toJSON(Server.getAvailableBooks()));
+                }
+                break;
+                case LOG_OUT: {
+                    List<AudioBook> forRemoving = null;
+                    String jsonList = fromPeer.readLine();
+                    System.out.println("Lista knjiga za uklanjanje:   " + jsonList);
+                    if (JsonConverter.isValidListOfBooks(jsonList))
+                        forRemoving = JsonConverter.jsonToBookList(jsonList);
+                    if (forRemoving != null){
+                        Server.reduceBookList(forRemoving);
+                        System.out.println("Knjige uklonjene nakon odjave klijenta");
+                    }
+                    else
+                        System.err.println("(ClientHandler) korisnik koje ni poslao listu knjiga, lista je null");
                 }
                 break;
 

@@ -54,6 +54,13 @@ public class Server {
         });
     }
 
+    public static void reduceBookList(List<AudioBook> forRemoving){
+        forRemoving.forEach(book -> {
+            if (availableBooks.contains(book))
+                availableBooks.remove(book);
+        });
+    }
+
     public static List<AudioBook> getAvailableBooks() {
         return availableBooks;
     }

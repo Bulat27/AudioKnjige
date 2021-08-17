@@ -32,6 +32,10 @@ public class ConfigurationTab {
 
     private static Configuration configuration;
 
+    public static Configuration getConfiguration() {
+        return configuration;
+    }
+
     public boolean IsAllNumber(String str) {
         char ch;
         boolean usp = true;

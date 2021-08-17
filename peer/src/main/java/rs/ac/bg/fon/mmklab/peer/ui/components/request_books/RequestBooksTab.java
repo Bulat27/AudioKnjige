@@ -91,14 +91,13 @@ public class RequestBooksTab {
             ServerCommunicator communicator = ServerCommunicator
                     .getInstance(InetAddress.getByName(configuration.getServerName()), configuration.getServerPort());
             list = ListExchanger.getAvailableBooks(communicator.getStreamFromServer(), communicator.getStreamToServer());
-            System.out.println();
-            System.out.println(">>>> Dobili smo listu knjiga <<<<<<<<");
+            System.out.println("\n>>>> Dobili smo listu knjiga <<<<<<<<");
         } catch (IOException e) {
 //            e.printStackTrace();
             System.err.println("Greska: nepoznat server");
         }
         if (list != null) {
-            availableBooks.getChildren().removeAll();
+            availableBooks.getChildren().clear();
             System.out.println();
             System.out.println(">>> Lista nije null <<<");
             list.forEach(book -> {
