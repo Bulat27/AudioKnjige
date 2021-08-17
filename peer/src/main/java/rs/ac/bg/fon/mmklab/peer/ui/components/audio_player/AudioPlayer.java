@@ -7,6 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import rs.ac.bg.fon.mmklab.peer.service.stream.receive.ReceiverInstance;
 import rs.ac.bg.fon.mmklab.peer.service.stream.signal.Signal;
 import rs.ac.bg.fon.mmklab.peer.service.stream.receive.Receiver;
 import rs.ac.bg.fon.mmklab.peer.service.stream.receive.Signaler;
@@ -41,7 +42,7 @@ public class AudioPlayer extends Stage{
         vbox.setPadding(new Insets(15, 10, 10, 10));
         vbox.setSpacing(12);
 
-        final Button playButton = new Button(" >>");
+        final Button playButton = new Button(" >> ");
         final Button pauseButton = new Button("  ||  ");
 
         Label space = new Label("    ");
@@ -56,6 +57,8 @@ public class AudioPlayer extends Stage{
         HBox.setHgrow(timeSlider, Priority.ALWAYS);
         timeSlider.setMinWidth(40);
         timeSlider.setMaxWidth(Double.MAX_VALUE);
+        timeSlider.setMin(0);
+        timeSlider.setMax(receiver.getInstance().getAudioBook().getAudioDescription().getLengthInFrames()); // koliko audio zapis ima frejmova tolika je maksimalna vrednost slajdera
         mediaBar.getChildren().add(timeSlider);
 
 
@@ -101,5 +104,9 @@ public class AudioPlayer extends Stage{
         Scene scene = new Scene(vbox, 450, 110);
         primaryStage.setScene(scene);
         primaryStage.showAndWait();
+    }
+
+    public static void updateTimeSlider(ReceiverInstance instance){
+        timeSlider.setValue(instance.getFramesRead());
     }
 }

@@ -44,7 +44,7 @@ public class Signaler extends Service<Signal> {
     private void terminate(){
         receiverInstance.getToSender().println(Signal.TERMINATE);
         try {
-            if (receiverInstance.getFromSender().readLine().equals("Signal accepted")) {
+            if (Signal.valueOf(receiverInstance.getFromSender().readLine()).equals(Signal.ACCEPT)) {
                 System.out.println("Posiljalac prihvatio signal za prekid");
             }
         } catch (IOException e) {
@@ -64,7 +64,7 @@ public class Signaler extends Service<Signal> {
     private void pause() {
         receiverInstance.getToSender().println(Signal.PAUSE);
         try {
-            if (receiverInstance.getFromSender().readLine().equals("Signal accepted")) {
+            if (Signal.valueOf(receiverInstance.getFromSender().readLine()).equals(Signal.ACCEPT)) {
                 System.out.println("Posiljalac prihvatio signal za pauzu");
             }
         } catch (IOException e) {

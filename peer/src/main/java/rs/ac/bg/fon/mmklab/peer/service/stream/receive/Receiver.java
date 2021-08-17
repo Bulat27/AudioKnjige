@@ -5,6 +5,7 @@ import javafx.concurrent.Task;
 import rs.ac.bg.fon.mmklab.book.AudioBook;
 import rs.ac.bg.fon.mmklab.book.CustomAudioFormat;
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
+import rs.ac.bg.fon.mmklab.peer.ui.components.audio_player.AudioPlayer;
 import rs.ac.bg.fon.mmklab.util.JsonConverter;
 
 import javax.sound.sampled.*;
@@ -95,6 +96,7 @@ public class Receiver extends Service<AudioBook> {
 
             try {
                 instance.getSourceLine().write(receiveBuffer, 0, receiveBuffer.length);
+                AudioPlayer.updateTimeSlider(instance);
             } catch (Exception e) {
 //                e.printStackTrace();
                 System.err.println("Nije moguce upisati nista na liniju");
@@ -103,6 +105,7 @@ public class Receiver extends Service<AudioBook> {
                     confirmationBuffer, confirmationBuffer.length, receivePacket.getAddress(), receivePacket.getPort());
             instance.getDatagramSocket().send(signalPacket); //paket potvrde omogućava da pošiljalac ne šalje pakete odmah, već da sačeka da se ceo bafer isprazni i ode ka mikseru
         }
+//        nakon zavrsenog prijema
         closeUDPConnection();
         try {
             closeTCPConnection();

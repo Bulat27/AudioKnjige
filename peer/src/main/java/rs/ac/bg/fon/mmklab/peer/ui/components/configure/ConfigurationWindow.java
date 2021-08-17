@@ -4,9 +4,9 @@ package rs.ac.bg.fon.mmklab.peer.ui.components.configure;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -20,12 +20,12 @@ import rs.ac.bg.fon.mmklab.peer.service.config_service.ConfigurationService;
 import rs.ac.bg.fon.mmklab.peer.service.server_communication.ServerCommunicator;
 import rs.ac.bg.fon.mmklab.peer.service.stream.send.Sender;
 import rs.ac.bg.fon.mmklab.peer.service.util.BooksFinder;
-import rs.ac.bg.fon.mmklab.peer.ui.components.request_books.RequestBooksTab;
+import rs.ac.bg.fon.mmklab.peer.ui.components.request_books.RequestBooksWindow;
 
 import java.io.IOException;
 import java.net.InetAddress;
 
-public class ConfigurationTab extends Stage {
+public class ConfigurationWindow extends Stage {
 
     private static Configuration configuration;
 
@@ -33,7 +33,7 @@ public class ConfigurationTab extends Stage {
         return configuration;
     }
 
-    public boolean IsAllNumber(String str) {
+    public boolean isAllNumber(String str) {
         char ch;
         boolean usp = true;
         for (int i = 0; i < str.length(); i++) {
@@ -48,11 +48,8 @@ public class ConfigurationTab extends Stage {
     }
 
     public static BorderPane display() {
-        BorderPane page = new BorderPane();
-        page.setPadding(new Insets(10, 50, 50, 50));
-
-        HBox hb = new HBox();
-        hb.setPadding(new Insets(20, 30, 20, 30));
+        BorderPane windowContent = new BorderPane();
+        windowContent.setPadding(new Insets(10, 50, 50, 50));
 
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(20, 20, 20, 20));
@@ -95,21 +92,7 @@ public class ConfigurationTab extends Stage {
 
         //Stilizacija dugmeta i dodavanje funkcionalnosti
         submitBtn.setStyle("-fx-background-color: linear-gradient(lightgrey, gray ); -fx-text-fill:BLACK;-fx-font-weight: BOLD ");
-        DropShadow shadow = new DropShadow();
-
-        submitBtn.addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                submitBtn.setEffect(shadow);
-            }
-        });
-
-        submitBtn.addEventHandler(MouseEvent.MOUSE_EXITED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                submitBtn.setEffect(null);
-            }
-        });
+        RequestBooksWindow.style(submitBtn);
 
         final Label lblMessage = new Label();
 
@@ -119,9 +102,9 @@ public class ConfigurationTab extends Stage {
                 String tcp = localPortTCPTxt.getText();
                 String udp = localPortUDPTxt.getText();
                 String path = pathToFolderTxt.getText();
-                ConfigurationTab pom = new ConfigurationTab();
-                if (tcp.trim().equals("") || !pom.IsAllNumber(tcp) ||
-                        udp.trim().equals("") || !pom.IsAllNumber(udp) ||
+                ConfigurationWindow pom = new ConfigurationWindow();
+                if (tcp.trim().equals("") || !pom.isAllNumber(tcp) ||
+                        udp.trim().equals("") || !pom.isAllNumber(udp) ||
                         path.trim().equals("")) {
 
                     Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -133,11 +116,11 @@ public class ConfigurationTab extends Stage {
 
                 } else {
                     configuration = configurationFactory(localPortTCPTxt, localPortUDPTxt, pathToFolderTxt);
-                    RequestBooksTab.updateConfiguration(configuration); // svaki put kad dodje do promene u knfiguraciji ona mora da se apdejtuje
-//            onog trenutka kad popunimo konfiguracije svakako cemo da saljemo serveru sve
+                    RequestBooksWindow.updateConfiguration(configuration); // svaki put kad dodje do promene u knfiguraciji ona mora da se apdejtuje
+//                  onog trenutka kad popunimo konfiguracije svakako cemo da saljemo serveru sve
                     sendListOfBooks(configuration);
 
-//            (new Sender(configuration)).run(); //kad smo definisali konfiguraciju i poslali listu knjiga koju nudimo tada ocekujemo poziv od primaoca
+//                  kad smo definisali konfiguraciju i poslali listu knjiga koju nudimo tada ocekujemo poziv od primaoca
                     (new Sender(configuration)).start();
 
                     //Otvaranje novog prozora
@@ -145,7 +128,7 @@ public class ConfigurationTab extends Stage {
                     Label label = new Label("Your are now in the second form");
                     root2.getChildren().add(label);
 
-                    RequestBooksTab.display();
+                    RequestBooksWindow.display();
 
                 }
             }
@@ -153,12 +136,10 @@ public class ConfigurationTab extends Stage {
 
 
         //final
-        hb.getChildren().add(naslov);
-        BorderPane pomTop = new BorderPane();
-        pomTop.setCenter(naslov);
-        page.setTop(pomTop);
-        page.setCenter(gridPane);
-        return page;
+        windowContent.setTop(naslov);
+        BorderPane.setAlignment(naslov, Pos.CENTER);
+        windowContent.setCenter(gridPane);
+        return windowContent;
     }
 
     private static Configuration configurationFactory(TextField localPortTCPTxt, TextField localPortUDPTxt, TextField pathToFolderTxt) {

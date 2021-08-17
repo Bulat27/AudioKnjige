@@ -32,12 +32,12 @@ public class SignalHandler extends Service {
                             case TERMINATE:{
 
                                 handler.getInstance().setSignal(Signal.TERMINATE);
-                                handler.getInstance().getToReceiver().println("Signal accepted");
+                                handler.getInstance().getToReceiver().println(Signal.ACCEPT);
                             }
                                 break;
                             case PAUSE: {
                                 handler.getInstance().setSignal(Signal.PAUSE);
-                                handler.getInstance().getToReceiver().println("Signal accepted");
+                                handler.getInstance().getToReceiver().println(Signal.ACCEPT);
                             }
                             break;
                             case RESUME: {
