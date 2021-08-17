@@ -1,45 +1,25 @@
 package rs.ac.bg.fon.mmklab.peer.service.config_service;
 
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
+import rs.ac.bg.fon.mmklab.properties.PropertiesCache;
 
-import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class ConfigurationService {
     public static Configuration getConfiguration(String localPortTCP, String localPortUDP, String pathToFolder) {
-        List<String> predefinedConfiguration = getPredefinedConfiguration(new File("lib/src/main/resources/config/confiruration.txt"));
-        String serverName = null;
-        String serverPortTxt = null;
-        String audioExtension = null;
-        for (int i = 0; i < predefinedConfiguration.size(); i++) {
-            String[] temp = predefinedConfiguration.get(i).split(":");
-            switch (temp[0]) {
-                case "server_address":
-                    serverName = temp[1];
-                    break;
-                case "server_port":
-                    serverPortTxt = temp[1];
-                    break;
-                case "audio_extension":
-                    audioExtension = temp[1];
-                    break;
-                default:
-                    break;
-            }
-        }
+
+        PropertiesCache props = PropertiesCache.getInstance();
 
         // kod portova ako se desi greska vraca -1
-        int serverPort = getValidPort(serverPortTxt); // port na kome osluskuje server
+        int serverPort = getValidPort(props.getProperty("server_port")); // port na kome osluskuje server
         int localPortTcp = getValidPort(localPortTCP);// port na kome osluskuje nasa sender nit
         int localPortUdp = getValidPort(localPortUDP); // port na kome primamo audio tok
 
         // kod adrese ako se desi greska vraca null
-        InetAddress serverAddress = getValidInetAddress(serverName);
-        String extension = getValidAudioExtension(audioExtension);
+        InetAddress serverAddress = getValidInetAddress(props.getProperty("server_address"));
+        String extension = getValidAudioExtension(props.getProperty("audio_extension"));
         String path = pathToFolder.trim(); // nikakva validacija za sad
         return new Configuration(serverAddress.getCanonicalHostName(), serverPort, localPortTcp, localPortUdp, extension, path);
 
@@ -89,18 +69,5 @@ public class ConfigurationService {
         System.err.println("Greska (ConfigurationService -> getServerPort): Broj porta u fajlu, ili onog koji je korisnik uneo nije veci od 1024 pa postoji opasnost da bude zauzet");
         return -1;
 
-    }
-
-    private static List<String> getPredefinedConfiguration(File configFile) {
-        List<String> result = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                result.add(line);
-            }
-        } catch (IOException e) {
-            System.err.println("Greska (COnfigurationService -> getPredefinedConfiguration): problem sa citanjem iz konfiguracionog fajla;\n " + e.getMessage());
-        }
-        return result;
     }
 }

@@ -97,7 +97,7 @@ public class RequestBooksTab {
             System.err.println("Greska: nepoznat server");
         }
         if (list != null) {
-            availableBooks.getChildren().clear();
+            availableBooks.getChildren().clear(); // removeAll(); mora da ima argumenta, a to nam ne odgovara
             System.out.println();
             System.out.println(">>> Lista nije null <<<");
             list.forEach(book -> {

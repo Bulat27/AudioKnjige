@@ -9,8 +9,7 @@ public class PropertiesCache {
 
     private final Properties configProp = new Properties();
 
-    private PropertiesCache()
-    {
+    private PropertiesCache() {
         InputStream in = this.getClass().getClassLoader().getResourceAsStream("application.properties");
         try {
             configProp.load(in);
@@ -19,25 +18,23 @@ public class PropertiesCache {
         }
     }
 
-    private static class LazyHolder
-    {
+    private static class LazyHolder {
         private static final PropertiesCache INSTANCE = new PropertiesCache();
     }
 
-    public static PropertiesCache getInstance()
-    {
+    public static PropertiesCache getInstance() {
         return LazyHolder.INSTANCE;
     }
 
-    public String getProperty(String key){
+    public String getProperty(String key) {
         return configProp.getProperty(key);
     }
 
-    public Set<String> getAllPropertyNames(){
+    public Set<String> getAllPropertyNames() {
         return configProp.stringPropertyNames();
     }
 
-    public boolean containsKey(String key){
+    public boolean containsKey(String key) {
         return configProp.containsKey(key);
     }
 }

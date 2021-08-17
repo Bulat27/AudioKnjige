@@ -1,3 +1,0 @@
-server_address:localhost
-server_port:8000
-audio_extension:.wav
