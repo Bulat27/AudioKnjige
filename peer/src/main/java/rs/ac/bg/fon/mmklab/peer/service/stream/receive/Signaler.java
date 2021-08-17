@@ -9,11 +9,13 @@ import java.io.IOException;
 public class Signaler extends Service<Signal> {
 
     private final Signal signal;
-    private final ReceiverInstance receiver;
+    private final ReceiverInstance receiverInstance;
+    private final Receiver receiver;
 
     public Signaler(Signal signal, Receiver receiver) {
         this.signal = signal;
-        this.receiver = receiver.getInstance();
+        this.receiver = receiver;
+        this.receiverInstance = this.receiver.getInstance();
     }
 
     @Override
@@ -22,23 +24,14 @@ public class Signaler extends Service<Signal> {
             @Override
             protected Object call() throws Exception {
                 switch (signal) {
-                    case TERMINATE: {
-                        System.out.println(">>   TERMINATE -------- nit: " + Thread.currentThread());
-
+                    case TERMINATE:
                         terminate();
-                    }
                     break;
-                    case PAUSE: {
-                        System.out.println(">>  PAUSE ---- nit: " + Thread.currentThread());
-
+                    case PAUSE:
                         pause();
-                    }
                     break;
-                    case RESUME: {
-                        System.out.println(">>   RESUME ----- nit: " + Thread.currentThread());
-
+                    case RESUME:
                         resume();
-                    }
                     break;
                     default:
                         break;
@@ -49,35 +42,39 @@ public class Signaler extends Service<Signal> {
     }
 
     private void terminate(){
-        receiver.getToSender().println(Signal.TERMINATE);
+        receiverInstance.getToSender().println(Signal.TERMINATE);
         try {
-            if (receiver.getFromSender().readLine().equals("Signal accepted")) {
+            if (receiverInstance.getFromSender().readLine().equals("Signal accepted")) {
                 System.out.println("Posiljalac prihvatio signal za prekid");
             }
         } catch (IOException e) {
 //            e.printStackTrace();
             System.err.println("Posiljalac nije prihvatio signal za prekid");
         }
-        receiver.getSourceLine().stop();
-
+        receiverInstance.getSourceLine().stop();
+        receiver.closeUDPConnection();
+        try {
+            receiver.closeTCPConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Signaler -> terminate: nije moguce zatvoriti tcp konekciju");
+        }
     }
 
     private void pause() {
-        receiver.getToSender().println(Signal.PAUSE);
+        receiverInstance.getToSender().println(Signal.PAUSE);
         try {
-            if (receiver.getFromSender().readLine().equals("Signal accepted")) {
+            if (receiverInstance.getFromSender().readLine().equals("Signal accepted")) {
                 System.out.println("Posiljalac prihvatio signal za pauzu");
             }
-            receiver.getToSender().println(receiver.getFramesRead());
         } catch (IOException e) {
 //            e.printStackTrace();
             System.err.println("Posiljalac nije prihvatio signal za pauzu");
         }
-//        receiver.getSourceLine().close();
     }
 
     private void resume(){
-        receiver.getToSender().println(Signal.RESUME);
+        receiverInstance.getToSender().println(Signal.RESUME);
         System.out.println("Poslat signal posiljaocu da nastavi slanje");
     }
 }

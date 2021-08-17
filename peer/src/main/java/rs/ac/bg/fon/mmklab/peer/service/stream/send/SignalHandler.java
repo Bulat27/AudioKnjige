@@ -29,11 +29,15 @@ public class SignalHandler extends Service {
 
                     synchronized (handler){ // zbog notify
                         switch (signal) {
-                            case TERMINATE:
+                            case TERMINATE:{
+
                                 handler.getInstance().setSignal(Signal.TERMINATE);
+                                handler.getInstance().getToReceiver().println("Signal accepted");
+                            }
                                 break;
                             case PAUSE: {
                                 handler.getInstance().setSignal(Signal.PAUSE);
+                                handler.getInstance().getToReceiver().println("Signal accepted");
                             }
                             break;
                             case RESUME: {

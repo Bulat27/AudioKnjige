@@ -19,7 +19,6 @@ public class PeerHandler extends Service {
     private final PeerHandlerInstance instance;
 
     private PeerHandler(PeerHandlerInstance instance) {
-
         this.instance = instance;
     }
 
@@ -146,50 +145,15 @@ public class PeerHandler extends Service {
                     case FORWARD:
                         break;
                     case TERMINATE: {
-                        instance.getToReceiver().println("Signal accepted");
+                        instance.getAudioInputStream().close();
+                        instance.getSocket().close();
+                        instance.getDatagramSocket().close();
                     }
                     return;
                     default:
                         break;
                 }
             }
-            /*switch (instance.getSignal()) {
-                case RUNNING:
-                    break;
-                case PAUSE: {
-                    instance.getToReceiver().println("Signal accepted");
-                    System.out.println("(Peer handler -> send): korisnik zausatavio stream, do sada je porcitano frejmova: " + instance.getFramesSent() + "; nit: " + Thread.currentThread());
-                    try {
-                        instance.getAudioInputStream().close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    instance.setSignal(Signal.ON_HOLD);
-                    continue;
-                }
-                case ON_HOLD:{
-//                    System.out.println("State: ON_HOLD");
-                    continue;
-                }
-                case RESUME: {
-                    System.out.println("Usli smo u RESUME deo");
-                    instance.setAudioInputStream(AudioSystem.getAudioInputStream(instance.getAudioFile()));
-                    instance.getAudioInputStream().skip(instance.getFramesSent() * frameSize);
-                    System.out.println("Premotali smo za " + instance.getFramesSent() * frameSize + " frejmova");
-                    instance.setSignal(Signal.RUNNING);
-                }
-                break;
-                case REWIND:
-                    break;
-                case FORWARD:
-                    break;
-                case TERMINATE:{
-                    instance.getToReceiver().println("Signal accepted");
-                }
-                return;
-                default:
-                    break;
-            }*/
 
 
             if ((instance.getAudioInputStream().read(sendBuffer)) == -1) {// kada se dodje do kraja toka vraca -1

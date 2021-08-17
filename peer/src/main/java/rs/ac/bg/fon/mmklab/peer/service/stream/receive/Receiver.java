@@ -89,8 +89,8 @@ public class Receiver extends Service<AudioBook> {
             try {
                 instance.getDatagramSocket().receive(receivePacket);
             } catch (IOException e) {
-                System.err.println("Problem na mreži, paket nije moguće primiti");
-                e.printStackTrace();
+                System.err.println("Problem na mreži, paket nije moguće primiti; ili je korisnik zatvorio konekciju prilikom stopiranja audio prenosa");
+//                e.printStackTrace();
             }
 
             try {
@@ -103,9 +103,9 @@ public class Receiver extends Service<AudioBook> {
                     confirmationBuffer, confirmationBuffer.length, receivePacket.getAddress(), receivePacket.getPort());
             instance.getDatagramSocket().send(signalPacket); //paket potvrde omogućava da pošiljalac ne šalje pakete odmah, već da sačeka da se ceo bafer isprazni i ode ka mikseru
         }
-        closeUDPConnection(instance.getDatagramSocket());
+        closeUDPConnection();
         try {
-            closeTCPConnection(instance.getSocket(), instance.getToSender(), instance.getFromSender());
+            closeTCPConnection();
         } catch (IOException e) {
 //            e.printStackTrace();
             System.err.println("(Receiver -> receive): greska pri zatvaranju tcp soketa i tokova kao posiljaocu");
@@ -114,14 +114,14 @@ public class Receiver extends Service<AudioBook> {
         System.out.println("Kraj prenosa, soketi i tokovi zatvoreni na strani klijenta");
     }
 
-    private void closeUDPConnection(DatagramSocket ds){
-        ds.close();
+    public void closeUDPConnection(){
+        instance.getDatagramSocket().close();
     }
 
-    private void closeTCPConnection(Socket s, PrintStream out, BufferedReader in) throws IOException {
-        s.close();
-        in.close();
-        out.close();
+    public void closeTCPConnection() throws IOException {
+        instance.getSocket().close();
+        instance.getToSender().close();
+        instance.getFromSender().close();
     }
 
 

@@ -11,7 +11,7 @@ import rs.ac.bg.fon.mmklab.peer.service.stream.signal.Signal;
 import rs.ac.bg.fon.mmklab.peer.service.stream.receive.Receiver;
 import rs.ac.bg.fon.mmklab.peer.service.stream.receive.Signaler;
 
-public class AudioPlayer extends BorderPane {
+public class AudioPlayer extends Stage{
     private static Receiver receiver;
 
     public static void setReceiver(Receiver r) {
@@ -31,53 +31,23 @@ public class AudioPlayer extends BorderPane {
         primaryStage.initModality(Modality.APPLICATION_MODAL);
         primaryStage.setTitle("Audio Player");
 
-        HBox buttonBar=new HBox();
+        HBox buttonBar = new HBox();
         HBox mediaBar = new HBox();
         mediaBar.setAlignment(Pos.CENTER);
         buttonBar.setAlignment(Pos.CENTER);
 
-        VBox vbox=new VBox();
-        vbox.getChildren().addAll(buttonBar,mediaBar);
+        VBox vbox = new VBox();
+        vbox.getChildren().addAll(buttonBar, mediaBar);
         vbox.setPadding(new Insets(15, 10, 10, 10));
         vbox.setSpacing(12);
-        vbox.setStyle("-fx-background-color:#76a3aa; -fx-font-family:'Times New Roman'; ");
 
         final Button playButton = new Button(" >>");
         final Button pauseButton = new Button("  ||  ");
+
         Label space = new Label("    ");
 
 
-        playButton.setStyle("-fx-background-color:#76a3aa; -fx-text-fill: Black;-fx-font-weight: BOLD; -fx-font-size: 13; -fx-border-style: solid; -fx-border-radius: 25; ");
-        pauseButton.setStyle("-fx-background-color:#76a3aa;-fx-text-fill: Black;-fx-font-weight: BOLD; -fx-font-size: 13; -fx-border-style: solid; -fx-border-radius: 25;");
-        buttonBar.getChildren().addAll(playButton,space,pauseButton);
-
-
-//        ponasanje
-        playButton.setOnAction(click -> {
-            switch (flag) {
-                case PAUSED: {
-                    Signaler signaler = new Signaler(Signal.RESUME, receiver);
-                    signaler.start();
-                    flag = Flag.RUNNING;
-                }
-                break;
-                case RUNNING: {
-                    Signaler signaler = new Signaler(Signal.PAUSE, receiver);
-                    signaler.start();
-                    flag = Flag.PAUSED;
-
-                }
-                break;
-                default:
-                    break;
-            }
-
-
-        });
-
-
-
-
+        buttonBar.getChildren().addAll(playButton, space, pauseButton);
 
         Label timeLabel = new Label("Time: ");
         mediaBar.getChildren().add(timeLabel);
@@ -89,7 +59,6 @@ public class AudioPlayer extends BorderPane {
         mediaBar.getChildren().add(timeSlider);
 
 
-
         Label volumeLabel = new Label("Vol: ");
         mediaBar.getChildren().add(volumeLabel);
 
@@ -99,6 +68,36 @@ public class AudioPlayer extends BorderPane {
         volumeSlider.setMinWidth(30);
         mediaBar.getChildren().add(volumeSlider);
 
+
+//        ponasanje
+        playButton.setOnAction(click -> {
+            Signaler signaler = new Signaler(Signal.RESUME, receiver);
+            signaler.start();
+            flag = Flag.RUNNING;
+        });
+
+        pauseButton.setOnAction(click -> {
+            Signaler signaler = new Signaler(Signal.PAUSE, receiver);
+            signaler.start();
+            flag = Flag.PAUSED;
+        });
+
+        primaryStage.setOnCloseRequest(windowEvent -> {
+            Signaler signaler = new Signaler(Signal.TERMINATE, receiver);
+            signaler.start();
+            flag = Flag.TERMINATED;
+        });
+
+
+
+//        stilizacija
+
+        vbox.setStyle("-fx-background-color:#76a3aa; -fx-font-family:'Times New Roman'; ");
+        playButton.setStyle("-fx-background-color:#76a3aa; -fx-text-fill: Black;-fx-font-weight: BOLD; -fx-font-size: 13; -fx-border-style: solid; -fx-border-radius: 25; ");
+        pauseButton.setStyle("-fx-background-color:#76a3aa;-fx-text-fill: Black;-fx-font-weight: BOLD; -fx-font-size: 13; -fx-border-style: solid; -fx-border-radius: 25;");
+
+
+//        postavljanje scene
         Scene scene = new Scene(vbox, 450, 110);
         primaryStage.setScene(scene);
         primaryStage.showAndWait();
