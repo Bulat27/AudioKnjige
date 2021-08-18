@@ -12,6 +12,9 @@ import rs.ac.bg.fon.mmklab.peer.service.stream.signal.Signal;
 import rs.ac.bg.fon.mmklab.peer.service.stream.receive.Receiver;
 import rs.ac.bg.fon.mmklab.peer.service.stream.receive.Signaler;
 
+import javax.sound.sampled.LineUnavailableException;
+import java.io.IOException;
+
 public class AudioPlayer extends Stage{
     private static Receiver receiver;
 
@@ -108,5 +111,9 @@ public class AudioPlayer extends Stage{
 
     public static void updateTimeSlider(ReceiverInstance instance){
         timeSlider.setValue(instance.getFramesRead());
+    }
+
+    public static long getSliderValue(){
+        return (long) timeSlider.getValue();
     }
 }

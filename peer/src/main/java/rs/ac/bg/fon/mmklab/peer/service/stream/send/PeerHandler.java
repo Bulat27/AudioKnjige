@@ -141,8 +141,7 @@ public class PeerHandler extends Service {
 
                     break;
                     case REWIND:
-                        break;
-                    case FORWARD:
+
                         break;
                     case TERMINATE: {
                         instance.getAudioInputStream().close();

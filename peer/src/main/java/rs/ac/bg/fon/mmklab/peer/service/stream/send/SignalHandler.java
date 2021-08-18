@@ -27,14 +27,14 @@ public class SignalHandler extends Service {
                     Signal signal = Signal.valueOf(handler.getInstance().getFromReceiver().readLine());
                     System.out.println("Prijem signala -----> " + signal + "; nit: " + Thread.currentThread());
 
-                    synchronized (handler){ // zbog notify
+                    synchronized (handler) { // zbog notify
                         switch (signal) {
-                            case TERMINATE:{
+                            case TERMINATE: {
 
                                 handler.getInstance().setSignal(Signal.TERMINATE);
                                 handler.getInstance().getToReceiver().println(Signal.ACCEPT);
                             }
-                                break;
+                            break;
                             case PAUSE: {
                                 handler.getInstance().setSignal(Signal.PAUSE);
                                 handler.getInstance().getToReceiver().println(Signal.ACCEPT);
@@ -43,6 +43,13 @@ public class SignalHandler extends Service {
                             case RESUME: {
                                 handler.getInstance().setSignal(Signal.RESUME);
                                 handler.notify();
+                            }
+                            break;
+                            case REWIND: {
+                                handler.getInstance().setSignal(Signal.REWIND);
+                                handler.getInstance().getToReceiver().println(Signal.ACCEPT);
+                                long newFramesSent = Integer.parseInt(handler.getInstance().getFromReceiver().readLine());
+                                handler.getInstance().setFramesSent(newFramesSent);
                             }
                             break;
                             default:

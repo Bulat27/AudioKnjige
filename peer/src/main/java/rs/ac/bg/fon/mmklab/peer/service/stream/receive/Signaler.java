@@ -26,13 +26,16 @@ public class Signaler extends Service<Signal> {
                 switch (signal) {
                     case TERMINATE:
                         terminate();
-                    break;
+                        break;
                     case PAUSE:
                         pause();
-                    break;
+                        break;
                     case RESUME:
                         resume();
-                    break;
+                        break;
+                    case REWIND:
+                        rewind();
+                        break;
                     default:
                         break;
                 }
@@ -41,7 +44,21 @@ public class Signaler extends Service<Signal> {
         };
     }
 
-    private void terminate(){
+    private void rewind() {
+        receiverInstance.getToSender().println(Signal.REWIND);
+        try {
+            if (Signal.valueOf(receiverInstance.getFromSender().readLine()).equals(Signal.ACCEPT)) {
+                System.out.println("Posiljalac prihvatio signal za premotavanje");
+            }
+        } catch (IOException e) {
+//            e.printStackTrace();
+            System.err.println("Posiljalac nije prihvatio signal za premotavanje");
+        }
+        receiverInstance.getToSender().println(receiverInstance.getFramesRead());
+
+    }
+
+    private void terminate() {
         receiverInstance.getToSender().println(Signal.TERMINATE);
         try {
             if (Signal.valueOf(receiverInstance.getFromSender().readLine()).equals(Signal.ACCEPT)) {
@@ -73,7 +90,7 @@ public class Signaler extends Service<Signal> {
         }
     }
 
-    private void resume(){
+    private void resume() {
         receiverInstance.getToSender().println(Signal.RESUME);
         System.out.println("Poslat signal posiljaocu da nastavi slanje");
     }
