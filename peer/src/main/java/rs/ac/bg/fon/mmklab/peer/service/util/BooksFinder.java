@@ -1,6 +1,7 @@
 package rs.ac.bg.fon.mmklab.peer.service.util;
 
 import rs.ac.bg.fon.mmklab.book.*;
+import rs.ac.bg.fon.mmklab.exception.InvalidBooksFolderException;
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
 
 import javax.sound.sampled.*;
@@ -20,7 +21,7 @@ public final class BooksFinder extends SimpleFileVisitor<Path> {
 
     private BooksFinder(){}
 
-    public static List<AudioBook> fetchBooks(Configuration configuration) {
+    public static List<AudioBook> fetchBooks(Configuration configuration) throws InvalidBooksFolderException {
         String booksFolder = configuration.getPathToBookFolder();
         String audioFormatExtension = configuration.getAudioExtension();
         InetSocketAddress localSocket = null;
@@ -37,8 +38,7 @@ public final class BooksFinder extends SimpleFileVisitor<Path> {
 
         if(!FileValidator.isValid(booksFolder)){
 //            ovde isto da se napravi neki exceptoin
-            System.err.println("Greska (fetchBooks): Prosledjena putanja ka folderu sa knjigama je nepostojeca");
-            return null;
+            throw new InvalidBooksFolderException("Prosleđena putanja ka folderu sa audio knjigama nije validna");
         }
 
         Path pathToBooksFolder = Paths.get(booksFolder);

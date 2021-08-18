@@ -34,9 +34,11 @@ ClientHandler extends Thread {
 
         /*ovde treba da ocekujemo od klijenta da nam posalje listu knjiga koje on moze da ponudi, to bismo mogli iz nekog JSON-a da izvucemo te podatke*/
 
-        List<AudioBook> list = null;
+        List<AudioBook> list;
         try {
-            Request req = Request.valueOf(fromPeer.readLine());
+            String reqName = fromPeer.readLine();
+            if (reqName == null) return;
+            Request req = Request.valueOf(reqName);
             switch (req) {
                 case POST_BOOKS: { // korisnik hoce da postavi knjige
                     String jsonList = fromPeer.readLine();
@@ -55,14 +57,14 @@ ClientHandler extends Thread {
                 case LOG_OUT: {
                     List<AudioBook> forRemoving = null;
                     String jsonList = fromPeer.readLine();
+                    if (jsonList == null) return; // ne vidim koji bi drugi nacin bio da se ovo resi
                     System.out.println("Lista knjiga za uklanjanje:   " + jsonList);
                     if (JsonConverter.isValidListOfBooks(jsonList))
                         forRemoving = JsonConverter.jsonToBookList(jsonList);
-                    if (forRemoving != null){
+                    if (forRemoving != null) {
                         Server.reduceBookList(forRemoving);
                         System.out.println("Knjige uklonjene nakon odjave klijenta");
-                    }
-                    else
+                    } else
                         System.err.println("(ClientHandler) korisnik koje ni poslao listu knjiga, lista je null");
                 }
                 break;

@@ -4,7 +4,6 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import rs.ac.bg.fon.mmklab.book.AudioBook;
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
-import rs.ac.bg.fon.mmklab.peer.service.stream.signal.Signal;
 import rs.ac.bg.fon.mmklab.peer.service.util.BooksFinder;
 import rs.ac.bg.fon.mmklab.util.JsonConverter;
 
@@ -110,7 +109,6 @@ public class PeerHandler extends Service {
         System.out.println("Hash code hendlera u PeerHandler-u: " + this.hashCode());
 
 
-
         // veličina frejma
         int frameSize = instance.getAudioInputStream().getFormat().getFrameSize();
 
@@ -138,11 +136,7 @@ public class PeerHandler extends Service {
                             e.printStackTrace();
                         }
                     }
-
                     break;
-                    case REWIND:
-
-                        break;
                     case TERMINATE: {
                         instance.getAudioInputStream().close();
                         instance.getSocket().close();

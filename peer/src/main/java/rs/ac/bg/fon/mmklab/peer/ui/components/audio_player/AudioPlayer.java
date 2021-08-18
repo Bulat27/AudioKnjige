@@ -12,7 +12,6 @@ import rs.ac.bg.fon.mmklab.peer.service.stream.signal.Signal;
 import rs.ac.bg.fon.mmklab.peer.service.stream.receive.Receiver;
 import rs.ac.bg.fon.mmklab.peer.service.stream.receive.Signaler;
 
-import javax.sound.sampled.LineUnavailableException;
 import java.io.IOException;
 
 public class AudioPlayer extends Stage{
@@ -23,13 +22,8 @@ public class AudioPlayer extends Stage{
     }
 
     private static Slider timeSlider;
-    private static Label playTime;
-    private static Slider volumeSlider;
-    private static Flag flag;
 
     public static void display() {
-
-        flag = Flag.RUNNING;
 
         Stage primaryStage = new Stage();
         primaryStage.initModality(Modality.APPLICATION_MODAL);
@@ -65,34 +59,23 @@ public class AudioPlayer extends Stage{
         mediaBar.getChildren().add(timeSlider);
 
 
-        Label volumeLabel = new Label("Vol: ");
-        mediaBar.getChildren().add(volumeLabel);
+//        ponasanje: pokretanje niti koja ce poslati signal pošiljaocu da li da pauzira, nastavi ili prekine slanje audio zapisa
+        playButton.setOnAction(click -> (new Signaler(Signal.RESUME, receiver)).start());
 
-        volumeSlider = new Slider();
-        volumeSlider.setPrefWidth(50);
-        volumeSlider.setMaxWidth(Region.USE_PREF_SIZE);
-        volumeSlider.setMinWidth(30);
-        mediaBar.getChildren().add(volumeSlider);
-
-
-//        ponasanje
-        playButton.setOnAction(click -> {
-            Signaler signaler = new Signaler(Signal.RESUME, receiver);
-            signaler.start();
-            flag = Flag.RUNNING;
-        });
-
-        pauseButton.setOnAction(click -> {
-            Signaler signaler = new Signaler(Signal.PAUSE, receiver);
-            signaler.start();
-            flag = Flag.PAUSED;
-        });
+        pauseButton.setOnAction(click -> (new Signaler(Signal.PAUSE, receiver)).start());
 
         primaryStage.setOnCloseRequest(windowEvent -> {
-            Signaler signaler = new Signaler(Signal.TERMINATE, receiver);
-            signaler.start();
-            flag = Flag.TERMINATED;
+            (new Signaler(Signal.TERMINATE, receiver)).start();
+
+//            zatvaranje soketa je neophodno u slucaju da je posiljalac iznenadno postao nedostupan pa razmena signala nije bila uspesna
+            receiver.closeUDPConnection();
+            try {
+                receiver.closeTCPConnection();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
+
 
 
 
@@ -111,9 +94,5 @@ public class AudioPlayer extends Stage{
 
     public static void updateTimeSlider(ReceiverInstance instance){
         timeSlider.setValue(instance.getFramesRead());
-    }
-
-    public static long getSliderValue(){
-        return (long) timeSlider.getValue();
     }
 }

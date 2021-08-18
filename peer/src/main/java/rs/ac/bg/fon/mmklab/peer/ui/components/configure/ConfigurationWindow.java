@@ -1,20 +1,20 @@
 package rs.ac.bg.fon.mmklab.peer.ui.components.configure;
 
 
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import rs.ac.bg.fon.mmklab.communication.peer_to_server.ListExchanger;
+import rs.ac.bg.fon.mmklab.exception.InvalidBooksFolderException;
+import rs.ac.bg.fon.mmklab.exception.InvalidConfigurationException;
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
 import rs.ac.bg.fon.mmklab.peer.service.config_service.ConfigurationService;
 import rs.ac.bg.fon.mmklab.peer.service.server_communication.ServerCommunicator;
@@ -47,7 +47,10 @@ public class ConfigurationWindow extends Stage {
         return usp;
     }
 
-    public static BorderPane display() {
+    public static void display() {
+        Stage window = new Stage();
+
+
         BorderPane windowContent = new BorderPane();
         windowContent.setPadding(new Insets(10, 50, 50, 50));
 
@@ -94,65 +97,61 @@ public class ConfigurationWindow extends Stage {
         submitBtn.setStyle("-fx-background-color: linear-gradient(lightgrey, gray ); -fx-text-fill:BLACK;-fx-font-weight: BOLD ");
         RequestBooksWindow.style(submitBtn);
 
-        final Label lblMessage = new Label();
+        submitBtn.setOnAction(submit -> {
 
-        submitBtn.setOnAction(new EventHandler() {
-            @Override
-            public void handle(Event event) {
+            String tcp = localPortTCPTxt.getText();
+            String udp = localPortUDPTxt.getText();
+            String path = pathToFolderTxt.getText();
+            ConfigurationWindow pom = new ConfigurationWindow();
+            if (tcp.trim().equals("") || !pom.isAllNumber(tcp) ||
+                    udp.trim().equals("") || !pom.isAllNumber(udp) ||
+                    path.trim().equals("")) {
 
-                String tcp = localPortTCPTxt.getText();
-                String udp = localPortUDPTxt.getText();
-                String path = pathToFolderTxt.getText();
-                ConfigurationWindow pom = new ConfigurationWindow();
-                if (tcp.trim().equals("") || !pom.isAllNumber(tcp) ||
-                        udp.trim().equals("") || !pom.isAllNumber(udp) ||
-                        path.trim().equals("")) {
-
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Neuspešno");
-                    alert.setHeaderText("NEISPRAVAN UNOS");
-                    alert.setContentText("Proverite da li su sva polja ispravno uneta.");
-                    alert.showAndWait();
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Neuspešno");
+                alert.setHeaderText("NEISPRAVAN UNOS");
+                alert.setContentText("Proverite da li su sva polja ispravno uneta.");
+                alert.showAndWait();
 
 
-                } else {
-                    configuration = configurationFactory(localPortTCPTxt, localPortUDPTxt, pathToFolderTxt);
-                    RequestBooksWindow.updateConfiguration(configuration); // svaki put kad dodje do promene u knfiguraciji ona mora da se apdejtuje
+            } else {
+                configuration = configurationFactory(localPortTCPTxt, localPortUDPTxt, pathToFolderTxt);
+                RequestBooksWindow.updateConfiguration(configuration); // svaki put kad dodje do promene u knfiguraciji ona mora da se apdejtuje
 //                  onog trenutka kad popunimo konfiguracije svakako cemo da saljemo serveru sve
-                    sendListOfBooks(configuration);
+                //ako slanje nije uspesno jer nije lepo uneta oknfiguracija ne nastavljamo dalje vec ostavljamo korisnika da pravilno unese
+                if (!sendListOfBooks(configuration)) return;
 
 //                  kad smo definisali konfiguraciju i poslali listu knjiga koju nudimo tada ocekujemo poziv od primaoca
-                    (new Sender(configuration)).start();
+                (new Sender(configuration)).start();
 
-                    //Otvaranje novog prozora
-
-                    RequestBooksWindow.display();
-
-                }
-
+//                kad zavrsimo sa unosom menjamo sadrzaj prozora u prikaz liste dostupnih knjiga
+                windowContent.setCenter(RequestBooksWindow.display());
             }
+
         });
 
 
         //final
+        Scene scene = new Scene(windowContent, 660, 600);
+        window.setScene(scene);
+        window.setTitle("Konfiguracija");
         windowContent.setTop(naslov);
         BorderPane.setAlignment(naslov, Pos.CENTER);
         windowContent.setCenter(gridPane);
+        window.show();
 
-        return windowContent;
     }
 
     private static Configuration configurationFactory(TextField localPortTCPTxt, TextField localPortUDPTxt, TextField pathToFolderTxt) {
         return ConfigurationService.getConfiguration(localPortTCPTxt.getText(), localPortUDPTxt.getText(), pathToFolderTxt.getText());
     }
 
-    private static void sendListOfBooks(Configuration configuration) {
+    private static boolean sendListOfBooks(Configuration configuration) {
         //            onog trenutka kad popunimo konfiguracije svakako cemo da saljemo serveru sve
         try {
             if (configuration == null) {
 //                    korisnik nije lepo uneo konfiguraciju
-                System.err.println("Vrati korisnika na prvi tab da lepo unese konfiguraciju i naznaci mu sta je zeznuo");
-                return;
+                throw new InvalidConfigurationException("Loš unos konfiguracije");
             }
 
             ServerCommunicator communicator = ServerCommunicator.getInstance(InetAddress.getByName(configuration.getServerName()), configuration.getServerPort());
@@ -164,7 +163,21 @@ public class ConfigurationWindow extends Stage {
         } catch (IOException e) {
 //                e.printStackTrace();
             System.err.println("Greska(): ili je nepostojeca adresa servera prosledjena, ili los port, ili ");
+            return false;
+        } catch (InvalidBooksFolderException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Loša putanja");
+            alert.setContentText("Unesite validnu putanju \nka folderu sa audio knjigama.");
+            alert.showAndWait();
+            return false;
+        } catch (InvalidConfigurationException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Loša konfiguracija");
+            alert.setContentText("Unesite validnu konfiguraciju\nproverite sva polja za unos");
+            alert.showAndWait();
+            return false;
         }
+        return true;
     }
 
 }
