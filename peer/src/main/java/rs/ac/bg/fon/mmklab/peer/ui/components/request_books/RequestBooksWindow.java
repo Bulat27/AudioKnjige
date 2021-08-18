@@ -36,8 +36,16 @@ public class RequestBooksWindow {
     public static void display() {
         BorderPane windowContent = new BorderPane();
         Button sendRequestBtn = new Button("Get available books");
+        sendRequestBtn.setStyle("-fx-background-color: linear-gradient(lightgrey, gray ); -fx-text-fill:BLACK;-fx-font-weight: BOLD ");
+        DropShadow shadow = new DropShadow();
+        sendRequestBtn.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> sendRequestBtn.setEffect(shadow));
+        sendRequestBtn.addEventHandler(MouseEvent.MOUSE_EXITED, e -> sendRequestBtn.setEffect(null));
+
         ScrollPane scrollPane = new ScrollPane();
-        VBox availableBooks = new VBox(5);
+        VBox availableBooks = new VBox(10);
+
+        windowContent.setMargin(sendRequestBtn, new Insets(12,25,12,25));
+        windowContent.setMargin(scrollPane, new Insets(12,25,12,25));
 
         sendRequestBtn.setOnAction(action -> showAvailableBooks(availableBooks));
 
@@ -46,6 +54,7 @@ public class RequestBooksWindow {
         windowContent.setTop(sendRequestBtn);
         BorderPane.setAlignment(sendRequestBtn, Pos.CENTER);
         windowContent.setCenter(scrollPane);
+        BorderPane.setAlignment(availableBooks, Pos.CENTER);
         windowContent.setPadding(new Insets(30, 0, 0, 0));
 
         Scene scene = new Scene(windowContent, 600, 300);
@@ -56,14 +65,8 @@ public class RequestBooksWindow {
         primaryStage.showAndWait();
 
 
-//        stilizacija
-        BorderPane.setMargin(sendRequestBtn, new Insets(12,12,12,12));
-        sendRequestBtn.setStyle("-fx-background-color: linear-gradient(lightgrey, gray ); -fx-text-fill:BLACK;-fx-font-weight: BOLD ");
-        DropShadow shadow = new DropShadow();
-        sendRequestBtn.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> sendRequestBtn.setEffect(shadow));
-        sendRequestBtn.addEventHandler(MouseEvent.MOUSE_EXITED, e -> sendRequestBtn.setEffect(null));
 
-        BorderPane.setMargin(scrollPane, new Insets(12,12,12,12));
+
     }
 
     private static void showAvailableBooks(VBox availableBooks) {
@@ -90,7 +93,7 @@ public class RequestBooksWindow {
                 bookBtn.setStyle("-fx-background-color: #8abec6; -fx-text-fill:BLACK; ");
                 style(bookBtn);
                 availableBooks.getChildren().add(bookBtn);
-                bookBtn.setPrefWidth(500);
+                bookBtn.setPrefWidth(532);
                 bookBtn.setOnAction(e -> {
                     try {
                         Receiver receiver = Receiver.createInstance(book, configuration);

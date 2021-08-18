@@ -99,6 +99,7 @@ public class ConfigurationWindow extends Stage {
         submitBtn.setOnAction(new EventHandler() {
             @Override
             public void handle(Event event) {
+
                 String tcp = localPortTCPTxt.getText();
                 String udp = localPortUDPTxt.getText();
                 String path = pathToFolderTxt.getText();
@@ -124,13 +125,11 @@ public class ConfigurationWindow extends Stage {
                     (new Sender(configuration)).start();
 
                     //Otvaranje novog prozora
-                    BorderPane root2 = new BorderPane();
-                    Label label = new Label("Your are now in the second form");
-                    root2.getChildren().add(label);
 
                     RequestBooksWindow.display();
 
                 }
+
             }
         });
 
@@ -139,6 +138,7 @@ public class ConfigurationWindow extends Stage {
         windowContent.setTop(naslov);
         BorderPane.setAlignment(naslov, Pos.CENTER);
         windowContent.setCenter(gridPane);
+
         return windowContent;
     }
 

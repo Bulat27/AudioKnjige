@@ -2,7 +2,10 @@ package rs.ac.bg.fon.mmklab.peer.ui;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import rs.ac.bg.fon.mmklab.book.AudioBook;
 import rs.ac.bg.fon.mmklab.communication.peer_to_server.Request;
@@ -12,6 +15,7 @@ import rs.ac.bg.fon.mmklab.peer.ui.components.configure.ConfigurationWindow;
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
 import rs.ac.bg.fon.mmklab.util.JsonConverter;
 
+import java.awt.*;
 import java.net.InetAddress;
 import java.util.List;
 
@@ -23,16 +27,17 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-
+        
 
         BorderPane root = ConfigurationWindow.display();
         primaryStage.setTitle("Audio Books");
         primaryStage.setWidth(600);
         primaryStage.setHeight(550);
         Scene scene = new Scene(root);
-
         primaryStage.setScene(scene);
         primaryStage.show();
+
+
     }
 
     @Override
