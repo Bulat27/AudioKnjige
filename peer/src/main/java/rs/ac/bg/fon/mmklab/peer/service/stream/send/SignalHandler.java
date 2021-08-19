@@ -2,11 +2,13 @@ package rs.ac.bg.fon.mmklab.peer.service.stream.send;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
 import rs.ac.bg.fon.mmklab.peer.service.stream.signal.Signal;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
+import java.net.Socket;
 
 public class SignalHandler extends Service {
 
@@ -33,6 +35,9 @@ public class SignalHandler extends Service {
 
                                 handler.getInstance().setSignal(Signal.TERMINATE);
                                 handler.getInstance().getToReceiver().println(Signal.ACCEPT);
+                                handler.closeTCPConnection();
+                                handler.closeUDPConnection();
+                                handler.cancel();
                             }
                             break;
                             case PAUSE: {
@@ -46,10 +51,15 @@ public class SignalHandler extends Service {
                             }
                             break;
                             case REWIND: {
-                                handler.getInstance().setSignal(Signal.REWIND);
+//                                prijem signala za premotavanje
                                 handler.getInstance().getToReceiver().println(Signal.ACCEPT);
-                                long newFramesSent = Integer.parseInt(handler.getInstance().getFromReceiver().readLine());
-                                handler.getInstance().setFramesSent(newFramesSent);
+
+//                                ubijanje dosadasnjeg hendlera, novi handler bi trebalo da se napravi pi pravljenju ReceiverInstance
+                                handler.closeTCPConnection();
+                                handler.closeUDPConnection();
+//                                handler.getInstance().getAudioInputStream().close();
+                                handler.cancel();
+
                             }
                             break;
                             default:

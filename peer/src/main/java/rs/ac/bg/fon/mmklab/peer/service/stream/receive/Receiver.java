@@ -53,6 +53,10 @@ public class Receiver extends Service<AudioBook> {
                 System.out.println("Receiver: Sender confirmed");
                 instance.getToSender().println(JsonConverter.toJSON(instance.getAudioBook()));
                 instance.getToSender().println(instance.getConfiguration().getLocalPortUDP());
+                if (instance.getFromSender().readLine().trim().equals("Send starting frame"))
+                    instance.getToSender().println(instance.getFramesRead());
+                System.out.println("Posiljaocu poslat startni frejm: " + instance.getFramesRead());
+
                 System.out.println("Poslata knjiga posiljaocu: " + JsonConverter.toJSON(instance.getAudioBook()));
             }
         } catch (IOException e) {
@@ -62,7 +66,7 @@ public class Receiver extends Service<AudioBook> {
         }
     }
 
-    private void receive() throws IOException, LineUnavailableException{
+    private void receive() throws IOException, LineUnavailableException {
 
 //        datagram soket, sourceLine i audio format su postavljeni pri kreiranju instance Receiver-a, na osnovu parametara audioBook i configuration koji se prosledjuju prilikom kreiranja listener-a za dugme knjige
 
@@ -107,24 +111,24 @@ public class Receiver extends Service<AudioBook> {
         }
 //        nakon zavrsenog prijema
         closeUDPConnection();
-        try {
-            closeTCPConnection();
-        } catch (IOException e) {
-//            e.printStackTrace();
-            System.err.println("(Receiver -> receive): greska pri zatvaranju tcp soketa i tokova kao posiljaocu");
-        }
+        closeTCPConnection();
         instance.getSourceLine().close();
         System.out.println("Kraj prenosa, soketi i tokovi zatvoreni na strani klijenta");
     }
 
-    public void closeUDPConnection(){
+    public void closeUDPConnection() {
         instance.getDatagramSocket().close();
     }
 
-    public void closeTCPConnection() throws IOException {
-        instance.getSocket().close();
-        instance.getToSender().close();
-        instance.getFromSender().close();
+    public void closeTCPConnection() {
+        try {
+            instance.getSocket().close();
+            instance.getToSender().close();
+            instance.getFromSender().close();
+        } catch (IOException e) {
+//            e.printStackTrace();
+            System.err.println("Nije moguce zatvoriti TCP konekciju");
+        }
     }
 
 

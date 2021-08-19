@@ -63,8 +63,15 @@ public class PeerHandler extends Service {
                 instance.getToReceiver().println("Yes, which book?");
                 String jsonBookInfo = instance.getFromReceiver().readLine();
                 instance.setRemotePortUDP(Integer.parseInt(instance.getFromReceiver().readLine().trim()));
+//              podesavamo od kog frejma krece citanje, jer ukoliko dodje do premotavanja uspostavlja se nova konekcija
+                instance.getToReceiver().println("Send starting frame");
+                long startingFrame = Long.parseLong(instance.getFromReceiver().readLine());
+
                 AudioBook bookForStreaming = JsonConverter.toOriginal(jsonBookInfo, AudioBook.class);
 
+//                preskacemo odredjeni broj frejmova
+                instance.setFramesSent(startingFrame);
+                System.out.println("Preskoceno frejmova: " + startingFrame);
                 return bookForStreaming;
             }
         } catch (IOException e) {
@@ -81,6 +88,8 @@ public class PeerHandler extends Service {
         //preko klase AudioSystem se pristupa svim resursima u sistemu, tipa fajlovi, mikrofon itd... takodje mozemo da vidimo koji je format audia
         try {
             instance.setAudioInputStream(AudioSystem.getAudioInputStream(instance.getAudioFile()));// UnsupportedFileException  // IOException
+            System.out.println("");
+            System.out.println("Stvarno preskoceno bajtova: " + instance.getAudioInputStream().skip(instance.getFramesSent() * instance.getAudioInputStream().getFormat().getFrameSize()));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -93,13 +102,9 @@ public class PeerHandler extends Service {
 
 
         // zatvaranje svih soketa i tokova
-        closeUDPConnection(instance.getDatagramSocket());
-        try {
-            closeTCPConnection(instance.getSocket(), instance.getToReceiver(), instance.getFromReceiver());
-        } catch (IOException e) {
-//            e.printStackTrace();
-            System.err.println("(PeerHandler ---> startSending):  greska pri zatvaranju soketa nakon slanja knjige");
-        }
+        closeUDPConnection();
+        closeTCPConnection();
+
 
         System.out.println("Ceo fajl je procitan, i soket zatvoren");
     }
@@ -166,14 +171,19 @@ public class PeerHandler extends Service {
         }
     }
 
-    public void closeUDPConnection(DatagramSocket ds) {
-        ds.close();
+    public void closeUDPConnection() {
+        instance.getDatagramSocket().close();
     }
 
-    public void closeTCPConnection(Socket s, PrintStream ps, BufferedReader br) throws IOException {
-        s.close();
-        ps.close();
-        br.close();
+    public void closeTCPConnection() {
+        try {
+            instance.getSocket().close();
+            instance.getFromReceiver().close();
+            instance.getToReceiver().close();
+        } catch (IOException e) {
+//            e.printStackTrace();
+            System.err.println("(PeerHandler ---> startSending):  greska pri zatvaranju soketa nakon slanja knjige");
+        }
     }
 
 
