@@ -3,7 +3,6 @@ package rs.ac.bg.fon.mmklab.peer.service.stream.receive;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import rs.ac.bg.fon.mmklab.book.AudioBook;
-import rs.ac.bg.fon.mmklab.book.CustomAudioFormat;
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
 import rs.ac.bg.fon.mmklab.peer.ui.components.audio_player.AudioPlayer;
 import rs.ac.bg.fon.mmklab.util.JsonConverter;
@@ -11,8 +10,6 @@ import rs.ac.bg.fon.mmklab.util.JsonConverter;
 import javax.sound.sampled.*;
 import java.io.*;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.Socket;
 
 public class Receiver extends Service<AudioBook> {
 //    nit slusaoca krece sa radom onog trenutka kad korisnik odabere knjigu koju hoce da slusa
@@ -114,13 +111,48 @@ public class Receiver extends Service<AudioBook> {
         closeTCPConnection();
         instance.getSourceLine().close();
         System.out.println("Kraj prenosa, soketi i tokovi zatvoreni na strani klijenta");
+
     }
 
-    public void closeUDPConnection() {
+    public void restart(double startingPoint){
+        //        parametri potrebni za pokretanje novog receivera
+        AudioBook book = instance.getAudioBook();
+        Configuration config = instance.getConfiguration();
+
+//      kad zatvorimo konekciju ubijamo dosadasnjeg receivera da bismo pokrenuli novog
+        instance.getSourceLine().stop();
+        this.closeUDPConnection();
+        this.closeTCPConnection();
+        this.cancel();
+
+
+//        instanciranje novog receivera
+        try {
+            Receiver receiver = Receiver.createInstance(book, config);
+            receiver.getInstance().setFramesRead((long) startingPoint);
+            receiver.start();
+            AudioPlayer.setReceiver(receiver);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Nije moguce pokrenuti novog receivera, verovatno zbog zauzetog porta");
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+            System.err.println("Nije moguce pokrenuti novog receivera jer je zauzeta sourceDataLine");
+        }
+    }
+
+    public void terminate(){
+        instance.getSourceLine().stop();
+        this.closeUDPConnection();
+        this.closeTCPConnection();
+        this.cancel(); // ubijanje receiver niti
+    }
+
+    private void closeUDPConnection() {
         instance.getDatagramSocket().close();
     }
 
-    public void closeTCPConnection() {
+    private void closeTCPConnection() {
         try {
             instance.getSocket().close();
             instance.getToSender().close();

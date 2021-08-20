@@ -29,20 +29,15 @@ public class SignalHandler extends Service {
                     Signal signal = Signal.valueOf(handler.getInstance().getFromReceiver().readLine());
                     System.out.println("Prijem signala -----> " + signal + "; nit: " + Thread.currentThread());
 
-                    synchronized (handler) { // zbog notify
+                    synchronized (handler) { // zbog notify, postavljanje lock-a na handler objektu
                         switch (signal) {
                             case TERMINATE: {
-
                                 handler.getInstance().setSignal(Signal.TERMINATE);
-                                handler.getInstance().getToReceiver().println(Signal.ACCEPT);
-                                handler.closeTCPConnection();
-                                handler.closeUDPConnection();
-                                handler.cancel();
+                                handler.terminate();
                             }
                             break;
                             case PAUSE: {
                                 handler.getInstance().setSignal(Signal.PAUSE);
-                                handler.getInstance().getToReceiver().println(Signal.ACCEPT);
                             }
                             break;
                             case RESUME: {
@@ -51,15 +46,8 @@ public class SignalHandler extends Service {
                             }
                             break;
                             case REWIND: {
-//                                prijem signala za premotavanje
-                                handler.getInstance().getToReceiver().println(Signal.ACCEPT);
-
 //                                ubijanje dosadasnjeg hendlera, novi handler bi trebalo da se napravi pi pravljenju ReceiverInstance
-                                handler.closeTCPConnection();
-                                handler.closeUDPConnection();
-//                                handler.getInstance().getAudioInputStream().close();
-                                handler.cancel();
-
+                                handler.terminate();
                             }
                             break;
                             default:

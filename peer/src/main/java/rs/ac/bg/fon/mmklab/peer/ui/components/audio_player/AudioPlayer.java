@@ -19,13 +19,8 @@ import rs.ac.bg.fon.mmklab.peer.service.stream.receive.Signaler;
 import javax.sound.sampled.LineUnavailableException;
 import java.io.IOException;
 
-public class AudioPlayer extends Stage{
+public class AudioPlayer extends Stage {
     private static Receiver receiver;
-
-    public static void setReceiver(Receiver r) {
-        receiver = r;
-    }
-
     private static Slider timeSlider;
 
     public static void display() {
@@ -71,24 +66,20 @@ public class AudioPlayer extends Stage{
 
         pauseButton.setOnAction(click -> (new Signaler(Signal.PAUSE, receiver)).start());
 
-        forwardBtn.setOnAction(forward -> restartReceiver(receiver, (receiver.getInstance().getFramesRead() + timeSlider.getMax() / 20)));
+        forwardBtn.setOnAction(forward -> receiver.restart(receiver.getInstance().getFramesRead() + timeSlider.getMax() / 20));
 
-        backwardBtn.setOnAction(backward -> restartReceiver(receiver, (receiver.getInstance().getFramesRead() - timeSlider.getMax() / 20)));
+        backwardBtn.setOnAction(backward -> receiver.restart(receiver.getInstance().getFramesRead() - timeSlider.getMax() / 20));
 
         primaryStage.setOnCloseRequest(windowEvent -> {
             (new Signaler(Signal.TERMINATE, receiver)).start();
 
 //            zatvaranje soketa je neophodno u slucaju da je posiljalac iznenadno postao nedostupan pa razmena signala nije bila uspesna
-            receiver.closeUDPConnection();
-            receiver.closeTCPConnection();
+            receiver.terminate();
         });
 
-        timeSlider.setOnMouseReleased(release ->{
-            restartReceiver(receiver, timeSlider.getValue());
+        timeSlider.setOnMouseReleased(release -> {
+            receiver.restart(timeSlider.getValue());
         });
-
-
-
 
 
 //        stilizacija
@@ -100,46 +91,15 @@ public class AudioPlayer extends Stage{
 
 //        postavljanje scene
         Scene scene = new Scene(vbox, 450, 110);
-//        iz nekog razloga ne radi sa strelicama na tastaturi
-//        scene.setOnKeyPressed(event -> {
-//            switch (event.getCode()) {
-//                case LEFT:  restartReceiver(receiver, (receiver.getInstance().getFramesRead() - timeSlider.getMax() / 20)); break;
-//                case RIGHT:  restartReceiver(receiver, (receiver.getInstance().getFramesRead() + timeSlider.getMax() / 20)); break;
-//            }
-//        });
         primaryStage.setScene(scene);
         primaryStage.showAndWait();
     }
 
-    private static void restartReceiver(Receiver receiver, double value) {
-        ReceiverInstance receiverInstance = receiver.getInstance();
-        //        parametri potrebni za pokretanje novog receivera
-        AudioBook book = receiverInstance.getAudioBook();
-        Configuration config = receiverInstance.getConfiguration();
-
-//      kad zatvorimo konekciju ubijamo dosadasnjeg receivera da bismo pokrenuli novog
-        receiverInstance.getSourceLine().stop();
-        receiver.closeUDPConnection();
-        receiver.closeTCPConnection();
-        receiver.cancel();
-
-
-//        instanciranje novog receivera
-        try {
-            receiver = Receiver.createInstance(book, config);
-            receiver.getInstance().setFramesRead((long) value);
-            receiver.start();
-            AudioPlayer.setReceiver(receiver);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Nije moguce pokrenuti novog receivera, verovatno zbog zauzetog porta");
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
-            System.err.println("Nije moguce pokrenuti novog receivera jer je zauzeta sourceDataLine");
-        }
+    public static void setReceiver(Receiver r) {
+        receiver = r;
     }
 
-    public static void updateTimeSlider(ReceiverInstance instance){
+    public static void updateTimeSlider(ReceiverInstance instance) {
         timeSlider.setValue(instance.getFramesRead());
     }
 }

@@ -171,11 +171,11 @@ public class PeerHandler extends Service {
         }
     }
 
-    public void closeUDPConnection() {
+    private void closeUDPConnection() {
         instance.getDatagramSocket().close();
     }
 
-    public void closeTCPConnection() {
+    private void closeTCPConnection() {
         try {
             instance.getSocket().close();
             instance.getFromReceiver().close();
@@ -184,6 +184,12 @@ public class PeerHandler extends Service {
 //            e.printStackTrace();
             System.err.println("(PeerHandler ---> startSending):  greska pri zatvaranju soketa nakon slanja knjige");
         }
+    }
+
+    public void terminate(){
+        this.closeUDPConnection();
+        this.closeTCPConnection();
+        this.cancel();
     }
 
 
