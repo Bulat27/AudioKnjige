@@ -27,8 +27,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-//        BorderPane root = ConfigurationWindow.display();
-        ConfigurationWindow.display();
+        ConfigurationWindow.display(); //prvo prikazujemo unos podataka za konfiguraciju pa se nakon toga nadovezuju ostali delovi aplikacije
     }
 
     @Override
@@ -38,7 +37,7 @@ public class Main extends Application {
 
         try {
             Configuration configuration = ConfigurationWindow.getConfiguration();
-            ServerCommunicator communicator = ServerCommunicator.getInstance(InetAddress.getByName(configuration.getServerName()), configuration.getServerPort());
+            ServerCommunicator communicator = ServerCommunicator.getInstance(configuration);
             communicator.getStreamToServer().println(Request.LOG_OUT); // obavestenje da cemo da se izlogujemo
             List<AudioBook> list = BooksFinder.fetchBooks(configuration);
             communicator.getStreamToServer().println(JsonConverter.toJSON(list)); // slanje knjiga koje treba ukloniti sa liste

@@ -30,7 +30,7 @@ public class ListExchanger {
             String jsonList = fromServer.readLine();
             result = JsonConverter.jsonToBookList(jsonList);
 //            result = (ArrayList<AudioBook>) JsonConverter.toOriginal(jsonList, (new ArrayList<AudioBook>()).getClass()); // baca ClassCastException
-//            System.out.println(">> Knjige su pristigle nakon zahteva koji smo poslali serveru <<");
+            System.out.println(">> Knjige su pristigle nakon zahteva koji smo poslali serveru <<");
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -11,9 +11,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import rs.ac.bg.fon.mmklab.book.AudioBook;
 import rs.ac.bg.fon.mmklab.communication.peer_to_server.ListExchanger;
+import rs.ac.bg.fon.mmklab.exception.InvalidBooksFolderException;
+import rs.ac.bg.fon.mmklab.exception.InvalidConfigurationException;
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
 import rs.ac.bg.fon.mmklab.peer.service.server_communication.ServerCommunicator;
 import rs.ac.bg.fon.mmklab.peer.service.stream.receive.Receiver;
+import rs.ac.bg.fon.mmklab.peer.service.util.BooksFinder;
+import rs.ac.bg.fon.mmklab.peer.ui.components.alert.ErrorDialog;
 import rs.ac.bg.fon.mmklab.peer.ui.components.audio_player.AudioPlayer;
 
 import javax.sound.sampled.LineUnavailableException;
@@ -66,13 +70,10 @@ public class RequestBooksWindow {
         }
         try {
             ServerCommunicator communicator = ServerCommunicator
-                    .getInstance(InetAddress.getByName(configuration.getServerName()), configuration.getServerPort());
+                    .getInstance(configuration);
             list = ListExchanger.getAvailableBooks(communicator.getStreamFromServer(), communicator.getStreamToServer());
         } catch (IOException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Setver nedostupan");
-            alert.setContentText("Server trenutno nije dostupan,\nmolimo pokušajte kasnije");
-            alert.showAndWait();
+            new ErrorDialog("Server nedostupan", "Server trenutno nije dostupan,\nmolimo pokušajte kasnije").show();
             return;
         }
         if (list != null) {
@@ -92,15 +93,11 @@ public class RequestBooksWindow {
 //                    kad kliknemo na knjigu koju zelimo da slusamo automatski nam se otvara audio plejer koji blokira ovaj tab
                         AudioPlayer.display();
                     }  catch (LineUnavailableException lineUnavailableException) {
-//                        lineUnavailableException.printStackTrace();
-                        System.err.println("(booksBtn.setOnAction): prilikom kreiranja ReceiverInstance nije se mogla otvoriti audio linija iz fajla");
+                        new ErrorDialog("Problem pri reprodukciji", "Nije moguće uspostaviti tok ka mikseru,\nponovo pokrenite aplikaciju").show();
                     } catch (IOException ioException) {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Pošiljalac nedostupan");
-                        alert.setContentText("Pošiljalac audio zapisa više nije \ndostupan, molimo pokušajte \nsa osveženom listom knjiga");
-                        alert.showAndWait();
+                        new ErrorDialog("Pošiljalac nedostupan", "Pošiljalac audio zapisa više nije \ndostupan, molimo pokušajte \nsa osveženom listom knjiga").show();
 
-                        showAvailableBooks(availableBooks);
+                        showAvailableBooks(availableBooks); // u ovom trenutku prikazujemo azurnu listu knjiga
                     }
                 });
             });
@@ -115,4 +112,5 @@ public class RequestBooksWindow {
 
         bookBtn.addEventHandler(MouseEvent.MOUSE_EXITED, e -> bookBtn.setEffect(null));
     }
+
 }

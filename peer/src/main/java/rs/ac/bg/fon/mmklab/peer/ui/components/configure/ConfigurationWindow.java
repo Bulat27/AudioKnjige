@@ -20,6 +20,7 @@ import rs.ac.bg.fon.mmklab.peer.service.config_service.ConfigurationService;
 import rs.ac.bg.fon.mmklab.peer.service.server_communication.ServerCommunicator;
 import rs.ac.bg.fon.mmklab.peer.service.stream.send.Sender;
 import rs.ac.bg.fon.mmklab.peer.service.util.BooksFinder;
+import rs.ac.bg.fon.mmklab.peer.ui.components.alert.ErrorDialog;
 import rs.ac.bg.fon.mmklab.peer.ui.components.request_books.RequestBooksWindow;
 
 import java.io.IOException;
@@ -49,7 +50,6 @@ public class ConfigurationWindow extends Stage {
 
     public static void display() {
         Stage window = new Stage();
-
 
         BorderPane windowContent = new BorderPane();
         windowContent.setPadding(new Insets(10, 50, 50, 50));
@@ -107,19 +107,21 @@ public class ConfigurationWindow extends Stage {
                     udp.trim().equals("") || !pom.isAllNumber(udp) ||
                     path.trim().equals("")) {
 
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Neuspešno");
-                alert.setHeaderText("NEISPRAVAN UNOS");
-                alert.setContentText("Proverite da li su sva polja ispravno uneta.");
-                alert.showAndWait();
-
+                new ErrorDialog("Neispravan unos!", "Proverite da li su sva polja ispravno uneta.").show();
 
             } else {
-                configuration = configurationFactory(localPortTCPTxt, localPortUDPTxt, pathToFolderTxt);
+                configuration = ConfigurationService.getConfiguration(localPortTCPTxt.getText(), localPortUDPTxt.getText(), pathToFolderTxt.getText());
                 RequestBooksWindow.updateConfiguration(configuration); // svaki put kad dodje do promene u knfiguraciji ona mora da se apdejtuje
 //                  onog trenutka kad popunimo konfiguracije svakako cemo da saljemo serveru sve
                 //ako slanje nije uspesno jer nije lepo uneta oknfiguracija ne nastavljamo dalje vec ostavljamo korisnika da pravilno unese
-                if (!sendListOfBooks(configuration)) return;
+                try {
+                    if (!ServerCommunicator.getInstance(configuration).sendListOfBooks())
+                        return;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    new ErrorDialog("Neispravan unos!", "Proverite da li su sva polja ispravno uneta.").show();
+
+                }
 
 //                  kad smo definisali konfiguraciju i poslali listu knjiga koju nudimo tada ocekujemo poziv od primaoca
                 (new Sender(configuration)).start();
@@ -141,45 +143,6 @@ public class ConfigurationWindow extends Stage {
         window.show();
 
     }
-
-    private static Configuration configurationFactory(TextField localPortTCPTxt, TextField localPortUDPTxt, TextField pathToFolderTxt) {
-        return ConfigurationService.getConfiguration(localPortTCPTxt.getText(), localPortUDPTxt.getText(), pathToFolderTxt.getText());
-    }
-
-    private static boolean sendListOfBooks(Configuration configuration) {
-        //            onog trenutka kad popunimo konfiguracije svakako cemo da saljemo serveru sve
-        try {
-            if (configuration == null) {
-//                    korisnik nije lepo uneo konfiguraciju
-                throw new InvalidConfigurationException("Loš unos konfiguracije");
-            }
-
-            ServerCommunicator communicator = ServerCommunicator.getInstance(InetAddress.getByName(configuration.getServerName()), configuration.getServerPort());
-
-            ListExchanger.sendAvailableBooks(
-                    BooksFinder.fetchBooks(configuration),
-                    communicator.getStreamToServer(),
-                    communicator.getStreamFromServer());
-        } catch (IOException e) {
-//                e.printStackTrace();
-            System.err.println("Greska(): ili je nepostojeca adresa servera prosledjena, ili los port, ili ");
-            return false;
-        } catch (InvalidBooksFolderException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Loša putanja");
-            alert.setContentText("Unesite validnu putanju \nka folderu sa audio knjigama.");
-            alert.showAndWait();
-            return false;
-        } catch (InvalidConfigurationException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Loša konfiguracija");
-            alert.setContentText("Unesite validnu konfiguraciju\nproverite sva polja za unos");
-            alert.showAndWait();
-            return false;
-        }
-        return true;
-    }
-
 }
 
 

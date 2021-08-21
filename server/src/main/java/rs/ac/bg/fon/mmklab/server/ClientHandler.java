@@ -30,28 +30,30 @@ ClientHandler extends Thread {
     @Override
     public void run() {
 
-        try {
-            String reqName = fromPeer.readLine();
-            if (reqName == null) return;
-            Request req = Request.valueOf(reqName);
-            switch (req) {
-                case POST_BOOKS:  // korisnik hoce da postavi knjige
-                    appendNewBooks();
-                    break;
-                case GET_BOOKS:
-                    sendBooksToClient(); //korisnik hoce da mu se posalju knjige
-                    break;
-                case LOG_OUT:
-                    handleLoggingOut(); // korisnik izasao iz aplikacije
-                    break;
-            }
+        while (true) {
+            try {
+                String reqName = fromPeer.readLine();
+                if (reqName == null) return;
+                Request req = Request.valueOf(reqName);
+                switch (req) {
+                    case POST_BOOKS:  // korisnik hoce da postavi knjige
+                        appendNewBooks();
+                        break;
+                    case GET_BOOKS:
+                        sendBooksToClient(); //korisnik hoce da mu se posalju knjige
+                        break;
+                    case LOG_OUT:
+                        handleLoggingOut(); // korisnik izasao iz aplikacije
+                        closeResources();
+                        return;
+                }
 
-        } catch (IOException e) {
-            e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
 //        zatvaranje soketa i tokova
-        closeResources();
     }
 
     private void sendBooksToClient() {

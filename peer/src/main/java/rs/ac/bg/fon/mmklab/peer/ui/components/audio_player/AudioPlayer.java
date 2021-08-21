@@ -1,23 +1,16 @@
 package rs.ac.bg.fon.mmklab.peer.ui.components.audio_player;
 
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import rs.ac.bg.fon.mmklab.book.AudioBook;
-import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
 import rs.ac.bg.fon.mmklab.peer.service.stream.receive.ReceiverInstance;
 import rs.ac.bg.fon.mmklab.peer.service.stream.signal.Signal;
 import rs.ac.bg.fon.mmklab.peer.service.stream.receive.Receiver;
 import rs.ac.bg.fon.mmklab.peer.service.stream.receive.Signaler;
-
-import javax.sound.sampled.LineUnavailableException;
-import java.io.IOException;
 
 public class AudioPlayer extends Stage {
     private static Receiver receiver;
@@ -61,14 +54,17 @@ public class AudioPlayer extends Stage {
         mediaBar.getChildren().addAll(timeLabel, timeSlider, backwardBtn, forwardBtn);
 
 
-//        ponasanje: pokretanje niti koja ce poslati signal pošiljaocu da li da pauzira, nastavi ili prekine slanje audio zapisa
+//        ponasanje: pokretanje niti koja ce poslati signal pošiljaocu da li da pauzira, nastavi ili prekine slanje audio zapisa,
         playButton.setOnAction(click -> (new Signaler(Signal.RESUME, receiver)).start());
 
         pauseButton.setOnAction(click -> (new Signaler(Signal.PAUSE, receiver)).start());
 
-        forwardBtn.setOnAction(forward -> receiver.restart(receiver.getInstance().getFramesRead() + timeSlider.getMax() / 20));
+//        premotavanje preko dugmica za napred i nazad
+        forwardBtn.setOnAction(forward -> receiver.restart(receiver.getInstance().getFramesRead() + timeSlider.getMax() / 20)); // pomera samo za dvadeseti deo duzine celog zapisa
 
         backwardBtn.setOnAction(backward -> receiver.restart(receiver.getInstance().getFramesRead() - timeSlider.getMax() / 20));
+
+        timeSlider.setOnMouseReleased(release -> receiver.restart(timeSlider.getValue())); // premotavanje preko slajdera
 
         primaryStage.setOnCloseRequest(windowEvent -> {
             (new Signaler(Signal.TERMINATE, receiver)).start();
@@ -76,11 +72,6 @@ public class AudioPlayer extends Stage {
 //            zatvaranje soketa je neophodno u slucaju da je posiljalac iznenadno postao nedostupan pa razmena signala nije bila uspesna
             receiver.terminate();
         });
-
-        timeSlider.setOnMouseReleased(release -> {
-            receiver.restart(timeSlider.getValue());
-        });
-
 
 //        stilizacija
 

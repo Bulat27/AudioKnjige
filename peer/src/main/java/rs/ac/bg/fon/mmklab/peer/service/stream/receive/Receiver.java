@@ -4,6 +4,7 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import rs.ac.bg.fon.mmklab.book.AudioBook;
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
+import rs.ac.bg.fon.mmklab.peer.ui.components.alert.ErrorDialog;
 import rs.ac.bg.fon.mmklab.peer.ui.components.audio_player.AudioPlayer;
 import rs.ac.bg.fon.mmklab.util.JsonConverter;
 
@@ -107,9 +108,7 @@ public class Receiver extends Service<AudioBook> {
             instance.getDatagramSocket().send(signalPacket); //paket potvrde omogućava da pošiljalac ne šalje pakete odmah, već da sačeka da se ceo bafer isprazni i ode ka mikseru
         }
 //        nakon zavrsenog prijema
-        closeUDPConnection();
-        closeTCPConnection();
-        instance.getSourceLine().close();
+        terminate();
         System.out.println("Kraj prenosa, soketi i tokovi zatvoreni na strani klijenta");
 
     }
@@ -133,11 +132,15 @@ public class Receiver extends Service<AudioBook> {
             receiver.start();
             AudioPlayer.setReceiver(receiver);
         } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Nije moguce pokrenuti novog receivera, verovatno zbog zauzetog porta");
+//            e.printStackTrace();
+            System.err.println("Nije moguce pokrenuti novog receivera, verovatno zbog zauzetog porta");
+            new ErrorDialog("Problem na mreži", "Pošiljalac postao nedostupan,\nponovo učitajte dostupne knjige ").show();
+
         } catch (LineUnavailableException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             System.err.println("Nije moguce pokrenuti novog receivera jer je zauzeta sourceDataLine");
+            new ErrorDialog("Problem pri reprodukciji", "Nije moguće pristupiti mikseru,\nponovo pokrenite aplikaciju").show();
+
         }
     }
 

@@ -43,10 +43,12 @@ public class Server {
             if(!availableBooks.contains(book))
                 availableBooks.add(book);
         });
+        System.out.println("Na serveru trenutno ima: >> " + availableBooks.size() + " << knjiga");
     }
 
     public static void reduceBookList(List<AudioBook> forRemoving){
         forRemoving.forEach(availableBooks::remove);
+        System.out.println("Na serveru trenutno ima: >> " + availableBooks.size() + " << knjiga");
     }
 
     public static List<AudioBook> getAvailableBooks() {
