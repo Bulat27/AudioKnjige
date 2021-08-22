@@ -2,8 +2,6 @@ package rs.ac.bg.fon.mmklab.book;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
 import java.io.Serializable;
 import java.util.Objects;
 

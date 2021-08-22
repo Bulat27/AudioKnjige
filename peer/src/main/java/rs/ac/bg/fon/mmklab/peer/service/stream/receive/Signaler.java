@@ -2,13 +2,7 @@ package rs.ac.bg.fon.mmklab.peer.service.stream.receive;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import rs.ac.bg.fon.mmklab.book.AudioBook;
-import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
 import rs.ac.bg.fon.mmklab.peer.service.stream.signal.Signal;
-import rs.ac.bg.fon.mmklab.peer.ui.components.audio_player.AudioPlayer;
-
-import javax.sound.sampled.LineUnavailableException;
-import java.io.IOException;
 
 public class Signaler extends Service<Signal> {
 

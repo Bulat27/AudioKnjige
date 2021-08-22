@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.io.Serializable;
 import java.net.InetAddress;
-import java.util.Objects;
 
 @JsonSerialize
 public class BookOwner implements Serializable {

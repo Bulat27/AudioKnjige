@@ -1,11 +1,9 @@
 package rs.ac.bg.fon.mmklab.communication.peer_to_server;
 
-import com.fasterxml.jackson.databind.JavaType;
 import rs.ac.bg.fon.mmklab.book.AudioBook;
 import rs.ac.bg.fon.mmklab.util.JsonConverter;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ListExchanger {

@@ -4,7 +4,6 @@ package rs.ac.bg.fon.mmklab.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.everit.json.schema.Schema;
@@ -15,10 +14,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import rs.ac.bg.fon.mmklab.book.AudioBook;
-import rs.ac.bg.fon.mmklab.book.BookInfo;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public final class JsonConverter {

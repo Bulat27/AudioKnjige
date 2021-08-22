@@ -4,7 +4,6 @@ package rs.ac.bg.fon.mmklab.book;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 @JsonSerialize
 public class AudioBook implements Serializable {
