@@ -3,7 +3,10 @@ package rs.ac.bg.fon.mmklab.peer.service.config_service;
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
 import rs.ac.bg.fon.mmklab.properties.PropertiesCache;
 
+import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.Locale;
 
@@ -14,8 +17,10 @@ public class ConfigurationService {
 
         // kod portova ako se desi greska vraca -1
         int serverPort = getValidPort(props.getProperty("server_port")); // port na kome osluskuje server
-        int localPortTcp = getValidPort(localPortTCP);// port na kome osluskuje nasa sender nit
-        int localPortUdp = getValidPort(localPortUDP); // port na kome primamo audio tok
+//        int localPortTcp = getValidPort(localPortTCP);// port na kome osluskuje nasa sender nit
+//        int localPortUdp = getValidPort(localPortUDP); // port na kome primamo audio tok
+        int localPortTcp = getGeneratedPort();
+        int localPortUdp = getGeneratedPort();
 
         // kod adrese ako se desi greska vraca null
         InetAddress serverAddress = getValidInetAddress(props.getProperty("server_address"));
@@ -69,5 +74,43 @@ public class ConfigurationService {
         System.err.println("Greska (ConfigurationService -> getServerPort): Broj porta u fajlu, ili onog koji je korisnik uneo nije veci od 1024 pa postoji opasnost da bude zauzet");
         return -1;
 
+    }
+
+    public static int getGeneratedPort(){
+        int min =1050;
+        int max = 7000;
+        int port = 0;
+        boolean pronadjenPort = false;
+
+        while(!pronadjenPort){
+            port =(int) Math.floor(Math.random() * (max - min + 1) + min);
+            if(available(port)) pronadjenPort = true;
+        }
+        return port;
+    }
+
+    public static boolean available(int port) {
+        ServerSocket ss = null;
+        DatagramSocket ds = null;
+        try {
+            ss = new ServerSocket(port);
+            ss.setReuseAddress(true);
+            ds = new DatagramSocket(port);
+            ds.setReuseAddress(true);
+            return true;
+        } catch (IOException e) {
+        } finally {
+            if (ds != null) {
+                ds.close();
+            }
+
+            if (ss != null) {
+                try {
+                    ss.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+        return false;
     }
 }

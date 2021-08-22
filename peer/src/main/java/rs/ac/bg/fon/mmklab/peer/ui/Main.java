@@ -1,9 +1,6 @@
 package rs.ac.bg.fon.mmklab.peer.ui;
 
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import rs.ac.bg.fon.mmklab.book.AudioBook;
 import rs.ac.bg.fon.mmklab.communication.peer_to_server.Request;
@@ -14,9 +11,7 @@ import rs.ac.bg.fon.mmklab.peer.ui.components.configure.ConfigurationWindow;
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
 import rs.ac.bg.fon.mmklab.util.JsonConverter;
 
-import java.awt.*;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.List;
 
 public class Main extends Application {

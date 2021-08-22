@@ -95,6 +95,7 @@ public class RequestBooksWindow {
                     }  catch (LineUnavailableException lineUnavailableException) {
                         new ErrorDialog("Problem pri reprodukciji", "Nije moguće uspostaviti tok ka mikseru,\nponovo pokrenite aplikaciju").show();
                     } catch (IOException ioException) {
+                        ioException.printStackTrace();
                         new ErrorDialog("Pošiljalac nedostupan", "Pošiljalac audio zapisa više nije \ndostupan, molimo pokušajte \nsa osveženom listom knjiga").show();
 
                         showAvailableBooks(availableBooks); // u ovom trenutku prikazujemo azurnu listu knjiga

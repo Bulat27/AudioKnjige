@@ -41,6 +41,7 @@ public class Sender extends Service<Configuration> {
                         handler.start();
                     }
                 } catch (IOException e) {
+                    e.printStackTrace();
                     System.err.println("ERROR: Could not open receive socket on given port");
                 }
                 return null;

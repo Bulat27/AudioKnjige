@@ -12,19 +12,14 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import rs.ac.bg.fon.mmklab.communication.peer_to_server.ListExchanger;
-import rs.ac.bg.fon.mmklab.exception.InvalidBooksFolderException;
-import rs.ac.bg.fon.mmklab.exception.InvalidConfigurationException;
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
 import rs.ac.bg.fon.mmklab.peer.service.config_service.ConfigurationService;
 import rs.ac.bg.fon.mmklab.peer.service.server_communication.ServerCommunicator;
 import rs.ac.bg.fon.mmklab.peer.service.stream.send.Sender;
-import rs.ac.bg.fon.mmklab.peer.service.util.BooksFinder;
 import rs.ac.bg.fon.mmklab.peer.ui.components.alert.ErrorDialog;
 import rs.ac.bg.fon.mmklab.peer.ui.components.request_books.RequestBooksWindow;
 
 import java.io.IOException;
-import java.net.InetAddress;
 
 public class ConfigurationWindow extends Stage {
 
