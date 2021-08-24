@@ -20,7 +20,7 @@ public class Signaler extends Service<Signal> {
     protected Task createTask() {
         return new Task() {
             @Override
-            protected Object call() throws Exception {
+            protected Object call() {
                 switch (signal) {
                     case TERMINATE: {
                         receiverInstance.getToSender().println(Signal.TERMINATE); // saljemo posiljaocu da bi znao da prestane i on

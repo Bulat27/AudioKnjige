@@ -19,6 +19,7 @@ import rs.ac.bg.fon.mmklab.peer.service.stream.send.Sender;
 import rs.ac.bg.fon.mmklab.peer.ui.components.alert.ErrorDialog;
 import rs.ac.bg.fon.mmklab.peer.ui.components.request_books.RequestBooksWindow;
 
+import java.io.File;
 import java.io.IOException;
 
 public class ConfigurationWindow extends Stage {
@@ -27,20 +28,6 @@ public class ConfigurationWindow extends Stage {
 
     public static Configuration getConfiguration() {
         return configuration;
-    }
-
-    public boolean isAllNumber(String str) {
-        char ch;
-        boolean usp = true;
-        for (int i = 0; i < str.length(); i++) {
-            ch = str.charAt(i);
-            if (Character.isDigit(ch)) {
-                usp = true;
-            } else return false;
-
-            return usp;
-        }
-        return usp;
     }
 
     public static void display() {
@@ -54,10 +41,6 @@ public class ConfigurationWindow extends Stage {
         gridPane.setHgap(10);
         gridPane.setVgap(10);
 
-        Label localPortTCP = new Label("Unesite lokalni broj porta za tcp vezu:");
-        TextField localPortTCPTxt = new TextField();
-        Label localPortUDP = new Label("Unesite lokalni broj porta za udp vezu:");
-        TextField localPortUDPTxt = new TextField();
         Label pathToFolder = new Label("Unesite putanju do fascikle gde se nalaze audio knjige: ");
         final TextField pathToFolderTxt = new TextField();
         pathToFolderTxt.setText("/home/lumar26/Public/AudioBooks");
@@ -65,17 +48,9 @@ public class ConfigurationWindow extends Stage {
 
         //design labela i txtbox
         pathToFolder.setStyle("-fx-font-family:'Courier New'; -fx-font-size: 12px;-fx-font-weight: BOLD; ");
-        localPortTCP.setStyle("-fx-font-family:'Courier New'; -fx-font-size: 12px;-fx-font-weight: BOLD; ");
-        localPortUDP.setStyle("-fx-font-family:'Courier New'; -fx-font-size: 12px;-fx-font-weight: BOLD; ");
         pathToFolderTxt.setStyle("-fx-font-family:'Courier New'; -fx-font-size: 11px;");
-        localPortTCPTxt.setStyle("-fx-font-family:'Courier New'; -fx-font-size: 11px;");
-        localPortUDPTxt.setStyle("-fx-font-family:'Courier New'; -fx-font-size: 11px;");
 
-        //Dodavanje komponenta na grid pane
-        gridPane.add(localPortTCP, 2, 0);
-        gridPane.add(localPortTCPTxt, 2, 1);
-        gridPane.add(localPortUDP, 2, 2);
-        gridPane.add(localPortUDPTxt, 2, 3);
+        //Dodavanje komponenti na grid pane
         gridPane.add(pathToFolder, 2, 4);
         gridPane.add(pathToFolderTxt, 2, 5);
         gridPane.add(submitBtn, 2, 7);
@@ -93,19 +68,11 @@ public class ConfigurationWindow extends Stage {
         RequestBooksWindow.style(submitBtn);
 
         submitBtn.setOnAction(submit -> {
-
-            String tcp = localPortTCPTxt.getText();
-            String udp = localPortUDPTxt.getText();
             String path = pathToFolderTxt.getText();
-            ConfigurationWindow pom = new ConfigurationWindow();
-            if (tcp.trim().equals("") || !pom.isAllNumber(tcp) ||
-                    udp.trim().equals("") || !pom.isAllNumber(udp) ||
-                    path.trim().equals("")) {
-
-                new ErrorDialog("Neispravan unos!", "Proverite da li su sva polja ispravno uneta.").show();
-
+            if (path.trim().equals("") || !(new File(path)).isDirectory()) {
+                new ErrorDialog("Neispravan unos!", "Proverite da li ste uneli validnu putanju.").show();
             } else {
-                configuration = ConfigurationService.getConfiguration(localPortTCPTxt.getText(), localPortUDPTxt.getText(), pathToFolderTxt.getText());
+                configuration = ConfigurationService.getConfiguration(pathToFolderTxt.getText());
                 RequestBooksWindow.updateConfiguration(configuration); // svaki put kad dodje do promene u knfiguraciji ona mora da se apdejtuje
 //                  onog trenutka kad popunimo konfiguracije svakako cemo da saljemo serveru sve
                 //ako slanje nije uspesno jer nije lepo uneta oknfiguracija ne nastavljamo dalje vec ostavljamo korisnika da pravilno unese
@@ -114,7 +81,7 @@ public class ConfigurationWindow extends Stage {
                         return;
                 } catch (IOException e) {
                     e.printStackTrace();
-                    new ErrorDialog("Neispravan unos!", "Proverite da li su sva polja ispravno uneta.").show();
+                    new ErrorDialog("Neispravan unos!", "Proverite da li ste uneli validnu putanju.").show();
 
                 }
 
@@ -123,13 +90,14 @@ public class ConfigurationWindow extends Stage {
 
 //                kad zavrsimo sa unosom menjamo sadrzaj prozora u prikaz liste dostupnih knjiga
                 windowContent.setCenter(RequestBooksWindow.display());
+
             }
 
         });
 
 
         //final
-        Scene scene = new Scene(windowContent, 660, 600);
+        Scene scene = new Scene(windowContent, 660, 400);
         window.setScene(scene);
         window.setTitle("Konfiguracija");
         windowContent.setTop(naslov);

@@ -11,14 +11,12 @@ import java.net.UnknownHostException;
 import java.util.Locale;
 
 public class ConfigurationService {
-    public static Configuration getConfiguration(String localPortTCP, String localPortUDP, String pathToFolder) {
+    public static Configuration getConfiguration( String pathToFolder) {
 
         PropertiesCache props = PropertiesCache.getInstance();
 
         // kod portova ako se desi greska vraca -1
         int serverPort = getValidPort(props.getProperty("server_port")); // port na kome osluskuje server
-//        int localPortTcp = getValidPort(localPortTCP);// port na kome osluskuje nasa sender nit
-//        int localPortUdp = getValidPort(localPortUDP); // port na kome primamo audio tok
         int localPortTcp = getGeneratedPort();
         int localPortUdp = getGeneratedPort();
 

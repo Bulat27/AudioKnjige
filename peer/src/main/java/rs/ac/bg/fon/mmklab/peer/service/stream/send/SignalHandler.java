@@ -36,7 +36,7 @@ public class SignalHandler extends Service {
                             }
                             break;
                             case RESUME: {
-                                handler.getInstance().setSignal(Signal.RESUME);
+                                handler.getInstance().setSignal(Signal.RUNNING);
                                 handler.notify();
                             }
                             break;

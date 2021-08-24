@@ -2,7 +2,6 @@ package rs.ac.bg.fon.mmklab.peer.ui.components.request_books;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.DropShadow;
@@ -11,18 +10,14 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import rs.ac.bg.fon.mmklab.book.AudioBook;
 import rs.ac.bg.fon.mmklab.communication.peer_to_server.ListExchanger;
-import rs.ac.bg.fon.mmklab.exception.InvalidBooksFolderException;
-import rs.ac.bg.fon.mmklab.exception.InvalidConfigurationException;
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
 import rs.ac.bg.fon.mmklab.peer.service.server_communication.ServerCommunicator;
 import rs.ac.bg.fon.mmklab.peer.service.stream.receive.Receiver;
-import rs.ac.bg.fon.mmklab.peer.service.util.BooksFinder;
 import rs.ac.bg.fon.mmklab.peer.ui.components.alert.ErrorDialog;
 import rs.ac.bg.fon.mmklab.peer.ui.components.audio_player.AudioPlayer;
 
 import javax.sound.sampled.LineUnavailableException;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.List;
 
 public class RequestBooksWindow {
@@ -44,8 +39,8 @@ public class RequestBooksWindow {
         VBox availableBooks = new VBox(10);
         availableBooks.setPadding(new Insets(20, 50, 20, 50));
 
-        windowContent.setMargin(sendRequestBtn, new Insets(12, 25, 12, 25));
-        windowContent.setMargin(scrollPane, new Insets(12, 25, 12, 25));
+        BorderPane.setMargin(sendRequestBtn, new Insets(12, 25, 12, 25));
+        BorderPane.setMargin(scrollPane, new Insets(12, 25, 12, 25));
 
         sendRequestBtn.setOnAction(action -> showAvailableBooks(availableBooks));
 
@@ -63,7 +58,7 @@ public class RequestBooksWindow {
     }
 
     private static void showAvailableBooks(VBox availableBooks) {
-        List<AudioBook> list = null;
+        List<AudioBook> list;
         if (configuration == null) {
             System.err.println("Korisnik jos uvek nije odradio nikakvu konfiguraciju pa je nemoguce povuci listu knjiga sa servera");
             return;

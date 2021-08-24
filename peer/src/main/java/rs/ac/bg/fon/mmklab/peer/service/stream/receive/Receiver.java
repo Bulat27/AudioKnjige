@@ -4,6 +4,7 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import rs.ac.bg.fon.mmklab.book.AudioBook;
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
+import rs.ac.bg.fon.mmklab.peer.service.stream.signal.Signal;
 import rs.ac.bg.fon.mmklab.peer.ui.components.alert.ErrorDialog;
 import rs.ac.bg.fon.mmklab.peer.ui.components.audio_player.AudioPlayer;
 import rs.ac.bg.fon.mmklab.util.JsonConverter;
@@ -44,10 +45,10 @@ public class Receiver extends Service<AudioBook> {
     }
 
     private void establishConnection() {
-        instance.getToSender().println("Available for streaming?");
+        instance.getToSender().println(Signal.CHECK_AVAILABILITY);
         try {
-            String res = instance.getFromSender().readLine();
-            if (res.equals("Yes, which book?")) {
+            Signal res = Signal.valueOf(instance.getFromSender().readLine());
+            if (res.equals(Signal.SPECIFY_BOOK)) {
                 System.out.println("Receiver: Sender confirmed");
                 instance.getToSender().println(JsonConverter.toJSON(instance.getAudioBook()));
                 instance.getToSender().println(instance.getConfiguration().getLocalPortUDP());
@@ -66,14 +67,13 @@ public class Receiver extends Service<AudioBook> {
 
     private void receive() throws IOException, LineUnavailableException {
 
-//        datagram soket, sourceLine i audio format su postavljeni pri kreiranju instance Receiver-a, na osnovu parametara audioBook i configuration koji se prosledjuju prilikom kreiranja listener-a za dugme knjige
+//        datagram soket, sourceLine i audio format su postavljeni pri kreiranju instance Receiver-a,
+//        na osnovu parametara audioBook i configuration koji se prosledjuju prilikom kreiranja listener-a za dugme knjige
 
-        instance.getSourceLine().open(instance.getAudioFormat()); // ne znam dal bi ovde trebalo odmah da se otvara ovo
+        instance.getSourceLine().open(instance.getAudioFormat()); // otvaranje linije ka mikseru
         instance.getSourceLine().start();
-////        -----------------------------------------------------------------------------------------------------------------------------------------------
 
         int framesize = instance.getAudioBook().getAudioDescription().getFrameSizeInBytes();
-//        System.out.println("Veličina jednog okvira u bajtovima -----> " + framesize);
         byte[] receiveBuffer = new byte[1024 * framesize]; //i ovde bi trebalo da nam se posalje koja je velicina
         byte[] confirmationBuffer = "OK".getBytes();
         System.out.println("Krece prijem datagram paketa sa mreze");
@@ -93,6 +93,7 @@ public class Receiver extends Service<AudioBook> {
                 instance.getDatagramSocket().receive(receivePacket);
             } catch (IOException e) {
                 System.err.println("Problem na mreži, paket nije moguće primiti; ili je korisnik zatvorio konekciju prilikom stopiranja audio prenosa");
+                new ErrorDialog("Problem na mreži", "Pošiljalac postao nedostupan,\nponovo odaberite knjigu za slušanje").show();
 //                e.printStackTrace();
             }
 
@@ -102,12 +103,13 @@ public class Receiver extends Service<AudioBook> {
             } catch (Exception e) {
 //                e.printStackTrace();
                 System.err.println("Nije moguce upisati nista na liniju");
+                new ErrorDialog("Problem pri reprodukciji", "Nije moguće pristupiti mikseru,\nponovo pokrenite aplikaciju").show();
             }
             signalPacket = new DatagramPacket(
                     confirmationBuffer, confirmationBuffer.length, receivePacket.getAddress(), receivePacket.getPort());
             instance.getDatagramSocket().send(signalPacket); //paket potvrde omogućava da pošiljalac ne šalje pakete odmah, već da sačeka da se ceo bafer isprazni i ode ka mikseru
         }
-//        nakon zavrsenog prijema
+//        nakon zavrsenog prijema ubijamo receiver nit
         terminate();
         System.out.println("Kraj prenosa, soketi i tokovi zatvoreni na strani klijenta");
 
@@ -119,11 +121,7 @@ public class Receiver extends Service<AudioBook> {
         Configuration config = instance.getConfiguration();
 
 //      kad zatvorimo konekciju ubijamo dosadasnjeg receivera da bismo pokrenuli novog
-        instance.getSourceLine().stop();
-        this.closeUDPConnection();
-        this.closeTCPConnection();
-        this.cancel();
-
+        terminate();
 
 //        instanciranje novog receivera
         try {

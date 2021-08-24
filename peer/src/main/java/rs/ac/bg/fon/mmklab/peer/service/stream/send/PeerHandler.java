@@ -4,11 +4,11 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import rs.ac.bg.fon.mmklab.book.AudioBook;
 import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
+import rs.ac.bg.fon.mmklab.peer.service.stream.signal.Signal;
 import rs.ac.bg.fon.mmklab.peer.service.util.BooksFinder;
 import rs.ac.bg.fon.mmklab.util.JsonConverter;
 
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
 import java.net.*;
 
@@ -58,9 +58,9 @@ public class PeerHandler extends Service {
 
 
         try {
-            String req = instance.getFromReceiver().readLine();
-            if (req.equals("Available for streaming?")) {
-                instance.getToReceiver().println("Yes, which book?");
+            Signal req = Signal.valueOf(instance.getFromReceiver().readLine());
+            if (req.equals(Signal.CHECK_AVAILABILITY)) {
+                instance.getToReceiver().println(Signal.SPECIFY_BOOK);
                 String jsonBookInfo = instance.getFromReceiver().readLine();
                 instance.setRemotePortUDP(Integer.parseInt(instance.getFromReceiver().readLine().trim()));
 //              podesavamo od kog frejma krece citanje, jer ukoliko dodje do premotavanja uspostavlja se nova konekcija
@@ -81,14 +81,13 @@ public class PeerHandler extends Service {
         return null;
     }
 
-    private void initiateSending(AudioBook book) throws UnsupportedAudioFileException, IOException {
+    private void initiateSending(AudioBook book) throws IOException {
 
         /*  postavljamo audio fajl iz koga cemo da ucitavamo deo po deo i da saljemo na mrezu, kao i audioInputStream iz tog fajla */
         instance.setAudioFile(BooksFinder.getBook(book, instance.getConfiguration())); // ovde bi mogla da se odradi provera dal imamo tu knjigu kod nas
         //preko klase AudioSystem se pristupa svim resursima u sistemu, tipa fajlovi, mikrofon itd... takodje mozemo da vidimo koji je format audia
         try {
             instance.setAudioInputStream(AudioSystem.getAudioInputStream(instance.getAudioFile()));// UnsupportedFileException  // IOException
-            System.out.println("");
             System.out.println("Stvarno preskoceno bajtova: " + instance.getAudioInputStream().skip(instance.getFramesSent() * instance.getAudioInputStream().getFormat().getFrameSize()));
         } catch (Exception e) {
             e.printStackTrace();
@@ -102,14 +101,12 @@ public class PeerHandler extends Service {
 
 
         // zatvaranje svih soketa i tokova
-        closeUDPConnection();
-        closeTCPConnection();
-
+        terminate();
 
         System.out.println("Ceo fajl je procitan, i soket zatvoren");
     }
 
-    public void send() throws UnsupportedAudioFileException, IOException {
+    public void send() throws  IOException {
         System.out.println("U toku je slanje iz niti: " + Thread.currentThread());
         System.out.println("Hash code hendlera u PeerHandler-u: " + this.hashCode());
 
@@ -148,8 +145,6 @@ public class PeerHandler extends Service {
                         instance.getDatagramSocket().close();
                     }
                     return;
-                    default:
-                        break;
                 }
             }
 

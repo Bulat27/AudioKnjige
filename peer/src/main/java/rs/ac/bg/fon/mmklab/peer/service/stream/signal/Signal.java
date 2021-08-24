@@ -2,5 +2,5 @@ package rs.ac.bg.fon.mmklab.peer.service.stream.signal;
 
 public enum Signal {
 
-    RUNNING, PAUSE, REWIND, FORWARD, TERMINATE, RESUME, ACCEPT
+    RUNNING, PAUSE, REWIND, TERMINATE, RESUME, CHECK_AVAILABILITY, SPECIFY_BOOK
 }
