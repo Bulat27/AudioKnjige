@@ -64,7 +64,7 @@ public class PeerHandler extends Service {
                 String jsonBookInfo = instance.getFromReceiver().readLine();
                 instance.setRemotePortUDP(Integer.parseInt(instance.getFromReceiver().readLine().trim()));
 //              podesavamo od kog frejma krece citanje, jer ukoliko dodje do premotavanja uspostavlja se nova konekcija
-                instance.getToReceiver().println("Send starting frame");
+                instance.getToReceiver().println(Signal.GET_STARTING_FRAME);
                 long startingFrame = Long.parseLong(instance.getFromReceiver().readLine());
 
                 AudioBook bookForStreaming = JsonConverter.toOriginal(jsonBookInfo, AudioBook.class);

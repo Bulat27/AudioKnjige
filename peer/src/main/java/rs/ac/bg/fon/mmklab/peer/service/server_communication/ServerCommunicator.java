@@ -56,8 +56,7 @@ public class ServerCommunicator {
             }
             ListExchanger.sendAvailableBooks(
                     BooksFinder.fetchBooks(configuration),
-                    instance.getStreamToServer(),
-                    instance.getStreamFromServer());
+                    instance.getStreamToServer());
         } catch (IOException e) {
 //                e.printStackTrace();
             System.err.println("Greska(): ili je nepostojeca adresa servera prosledjena, ili los port, ili ");

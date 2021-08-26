@@ -87,6 +87,7 @@ public class RequestBooksWindow {
 
 //                    kad kliknemo na knjigu koju zelimo da slusamo automatski nam se otvara audio plejer koji blokira ovaj tab
                         AudioPlayer.display();
+
                     }  catch (LineUnavailableException lineUnavailableException) {
                         new ErrorDialog("Problem pri reprodukciji", "Nije moguće uspostaviti tok ka mikseru,\nponovo pokrenite aplikaciju").show();
                     } catch (IOException ioException) {

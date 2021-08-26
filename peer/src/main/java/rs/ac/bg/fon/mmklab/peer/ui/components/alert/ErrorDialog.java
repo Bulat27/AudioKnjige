@@ -3,7 +3,7 @@ package rs.ac.bg.fon.mmklab.peer.ui.components.alert;
 import javafx.scene.control.Alert;
 
 public class ErrorDialog {
-    private Alert alert;
+    private final Alert alert;
 
     public ErrorDialog(String title, String message) {
         alert = new Alert(Alert.AlertType.ERROR);

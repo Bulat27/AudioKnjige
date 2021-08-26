@@ -11,7 +11,7 @@ public class AudioBook implements Serializable {
     private BookInfo bookInfo;
     private BookOwner bookOwner;
 
-    public AudioBook() {
+    public AudioBook() { // potrebno zbog serijalizacije
     }
 
     public AudioBook(AudioDescription audioDescription, BookInfo bookInfo, BookOwner bookOwner) {
@@ -24,20 +24,20 @@ public class AudioBook implements Serializable {
         return bookInfo;
     }
 
-    public void setBookInfo(BookInfo bookInfo) {
-        this.bookInfo = bookInfo;
-    }
-
     public BookOwner getBookOwner() {
         return bookOwner;
     }
 
-    public void setBookOwner(BookOwner bookOwner) {
-        this.bookOwner = bookOwner;
-    }
-
     public AudioDescription getAudioDescription() {
         return audioDescription;
+    }
+
+    public void setBookInfo(BookInfo bookInfo) {
+        this.bookInfo = bookInfo;
+    }
+
+    public void setBookOwner(BookOwner bookOwner) {
+        this.bookOwner = bookOwner;
     }
 
     public void setAudioDescription(AudioDescription audioDescription) {

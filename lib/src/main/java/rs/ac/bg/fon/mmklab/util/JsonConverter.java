@@ -41,12 +41,11 @@ public final class JsonConverter {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, false);
 
-//        veliko pitanje dal radi ovo
         try {
             return mapper.readValue(json, type);
         } catch (JsonProcessingException e) {
-            System.err.println("Greska (JsonConverter ---> toOriginal):  baca JsonProcessingException jer nece da prebaci iz json stringa u objekat ");
-            e.printStackTrace();
+            System.err.println("JsonProcessingException (JsonConverter -> toOriginal):   problem pri oknvertovanju json stringa u zadati tip");
+//            e.printStackTrace();
         }
         return null;
     }
@@ -57,7 +56,6 @@ public final class JsonConverter {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, false);
 
-//        veliko pitanje dal radi ovo
         return mapper.readValue(jsonInput, new TypeReference<>() {
         });
 
@@ -73,7 +71,7 @@ public final class JsonConverter {
 //        ono sto validiramo, u pitanju je niz objekata pa mora da bude JSONArray
             test = new JSONArray(bookList);
         } catch (JSONException e) {
-            System.err.println("Nesto lose sa pravljenjem json niza od liste knjiga");
+            System.err.println("Nije moguce kreirati JSONArray od liste knjiga");
         }
         Schema schemaValidator = SchemaLoader.load(schema);
 
@@ -83,7 +81,6 @@ public final class JsonConverter {
             System.err.println("Greska (JsonConverter -> isValidListOfBooks): json string ne odgovoara datoj semi");
             return false;
         }
-
         return true;
     }
 

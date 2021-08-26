@@ -9,10 +9,9 @@ import java.util.List;
 public class ListExchanger {
 
     //    metoda kojom pri unosu i potvrdi konfiguracije u nasoj aplikaciji saljemo serveru listu knjiga koje mi nudimo
-    public static void sendAvailableBooks(List<AudioBook> listOfBooks, PrintStream streamToServer, BufferedReader streamFromServer) throws IOException {
+    public static void sendAvailableBooks(List<AudioBook> listOfBooks, PrintStream streamToServer) throws IOException {
 
-//        System.out.println("(initialConnectToServer): Lista knjiga koja se salje serveru ima sledeci oblik: " + JsonConverter.bookListToJSON(listOfBooks));
-        System.out.println("(initialConnectToServer): Lista knjiga koja se salje serveru ima sledeci oblik: " + JsonConverter.toJSON(listOfBooks));
+        System.out.println("Lista knjiga koja se salje serveru ima sledeci oblik: " + JsonConverter.toJSON(listOfBooks));
 
         streamToServer.println(Request.POST_BOOKS);
 
@@ -27,8 +26,7 @@ public class ListExchanger {
         try {
             String jsonList = fromServer.readLine();
             result = JsonConverter.jsonToBookList(jsonList);
-//            result = (ArrayList<AudioBook>) JsonConverter.toOriginal(jsonList, (new ArrayList<AudioBook>()).getClass()); // baca ClassCastException
-            System.out.println(">> Knjige su pristigle nakon zahteva koji smo poslali serveru <<");
+            System.out.println(" Knjige su pristigle nakon zahteva koji smo poslali serveru ");
         } catch (IOException e) {
             e.printStackTrace();
         }

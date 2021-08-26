@@ -31,10 +31,6 @@ public class ConfigurationService {
 
     private static String getValidAudioExtension(String audioExtension) {
         audioExtension = audioExtension.trim().toLowerCase(Locale.ROOT);
-        if (audioExtension == null){
-            System.err.println("Greska (ConfigurationService -> getValidAudioExtension): audio ekstenzija nije uspesno procitana iz konfiguracionog fajla");
-            return null;
-        }
         if(audioExtension.length() != 4 || !audioExtension.startsWith(".")) {
             System.err.println("Greska (ConfigurationService -> getValidAudioExtension): audio ekstenzija nije u odgovarajucem formatu");
             return null;

@@ -52,7 +52,7 @@ public class Receiver extends Service<AudioBook> {
                 System.out.println("Receiver: Sender confirmed");
                 instance.getToSender().println(JsonConverter.toJSON(instance.getAudioBook()));
                 instance.getToSender().println(instance.getConfiguration().getLocalPortUDP());
-                if (instance.getFromSender().readLine().trim().equals("Send starting frame"))
+                if (Signal.valueOf(instance.getFromSender().readLine()).equals(Signal.GET_STARTING_FRAME))
                     instance.getToSender().println(instance.getFramesRead());
                 System.out.println("Posiljaocu poslat startni frejm: " + instance.getFramesRead());
 
@@ -75,7 +75,8 @@ public class Receiver extends Service<AudioBook> {
 
         int framesize = instance.getAudioBook().getAudioDescription().getFrameSizeInBytes();
         byte[] receiveBuffer = new byte[1024 * framesize]; //i ovde bi trebalo da nam se posalje koja je velicina
-        byte[] confirmationBuffer = "OK".getBytes();
+//        byte[] confirmationBuffer = "OK".getBytes();
+        byte[] confirmationBuffer = Signal.DATAGRAM_RECEIVED.toString().getBytes();
         System.out.println("Krece prijem datagram paketa sa mreze");
 
 

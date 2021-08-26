@@ -7,15 +7,12 @@ import rs.ac.bg.fon.mmklab.peer.domain.Configuration;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.List;
 
 public class Sender extends Service<Configuration> {
     private ServerSocket receiveSocket;
     private Socket communicationSocket;
 
-    private Configuration configuration;
-
-    private List<PeerHandler> handlers;
+    private final Configuration configuration;
 
     public Sender(Configuration configuration) {
         this.configuration = configuration;
@@ -33,16 +30,13 @@ public class Sender extends Service<Configuration> {
                     System.out.println("Sender: STARTED");
 
                     while (true) {
-//                        System.out.println("Sender: awaiting connection");
-
                         communicationSocket = receiveSocket.accept();
                         PeerHandler handler = PeerHandler.createHandler(communicationSocket, configuration);  /// treba ovde try/catch
-//                        System.out.println("Desilo se prihvatanje veze i otvaranje soketa");
                         handler.start();
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    System.err.println("ERROR: Could not open receive socket on given port");
+//                    e.printStackTrace();
+                    System.err.println("Greska: Nije moguce pokrenuti PeerHandler pri zahtevu za konekcijom");
                 }
                 return null;
             }
