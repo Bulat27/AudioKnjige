@@ -88,7 +88,7 @@ public class PeerHandler extends Service {
         //preko klase AudioSystem se pristupa svim resursima u sistemu, tipa fajlovi, mikrofon itd... takodje mozemo da vidimo koji je format audia
         try {
             instance.setAudioInputStream(AudioSystem.getAudioInputStream(instance.getAudioFile()));// UnsupportedFileException  // IOException
-            System.out.println("Stvarno preskoceno bajtova: " + instance.getAudioInputStream().skip(instance.getFramesSent() * instance.getAudioInputStream().getFormat().getFrameSize()));
+            instance.getAudioInputStream().skip(instance.getFramesSent() * instance.getAudioInputStream().getFormat().getFrameSize());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -129,6 +129,7 @@ public class PeerHandler extends Service {
 
             synchronized (this) {
                 switch (instance.getSignal()) {
+                    case RESUME:
                     case RUNNING:
                         break;
                     case PAUSE: {
@@ -139,10 +140,9 @@ public class PeerHandler extends Service {
                         }
                     }
                     break;
+                    case REWIND:
                     case TERMINATE: {
-                        instance.getAudioInputStream().close();
-                        instance.getSocket().close();
-                        instance.getDatagramSocket().close();
+                        this.terminate();
                     }
                     return;
                 }

@@ -25,29 +25,9 @@ public class SignalHandler extends Service {
                     System.out.println("Prijem signala -----> " + signal + "; nit: " + Thread.currentThread());
 
                     synchronized (handler) { // zbog notify, postavljanje lock-a na handler objektu
-                        switch (signal) {
-                            case TERMINATE: {
-                                handler.getInstance().setSignal(Signal.TERMINATE);
-                                handler.terminate();
-                            }
-                            break;
-                            case PAUSE: {
-                                handler.getInstance().setSignal(Signal.PAUSE);
-                            }
-                            break;
-                            case RESUME: {
-                                handler.getInstance().setSignal(Signal.RUNNING);
-                                handler.notify();
-                            }
-                            break;
-                            case REWIND: {
-//                                ubijanje dosadasnjeg hendlera, novi handler bi trebalo da se napravi pi pravljenju ReceiverInstance
-                                handler.terminate();
-                            }
-                            break;
-                            default:
-                                break;
-                        }
+                        handler.getInstance().setSignal(signal);
+                        if (signal.equals(Signal.RESUME))
+                            handler.notify(); // u slucaju nastavljanja moramo da pokrenemo ponovo hendler nit koja je metodom wait() bila zaustavljena
                     }
                 }
                 return null;

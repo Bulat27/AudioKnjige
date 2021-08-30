@@ -49,7 +49,6 @@ public class Receiver extends Service<AudioBook> {
         try {
             Signal res = Signal.valueOf(instance.getFromSender().readLine());
             if (res.equals(Signal.SPECIFY_BOOK)) {
-                System.out.println("Receiver: Sender confirmed");
                 instance.getToSender().println(JsonConverter.toJSON(instance.getAudioBook()));
                 instance.getToSender().println(instance.getConfiguration().getLocalPortUDP());
                 if (Signal.valueOf(instance.getFromSender().readLine()).equals(Signal.GET_STARTING_FRAME))
@@ -75,7 +74,6 @@ public class Receiver extends Service<AudioBook> {
 
         int framesize = instance.getAudioBook().getAudioDescription().getFrameSizeInBytes();
         byte[] receiveBuffer = new byte[1024 * framesize]; //i ovde bi trebalo da nam se posalje koja je velicina
-//        byte[] confirmationBuffer = "OK".getBytes();
         byte[] confirmationBuffer = Signal.DATAGRAM_RECEIVED.toString().getBytes();
         System.out.println("Krece prijem datagram paketa sa mreze");
 
@@ -93,7 +91,6 @@ public class Receiver extends Service<AudioBook> {
             try {
                 instance.getDatagramSocket().receive(receivePacket);
             } catch (IOException e) {
-                System.err.println("Problem na mreži, paket nije moguće primiti; ili je korisnik zatvorio konekciju prilikom stopiranja audio prenosa");
                 new ErrorDialog("Problem na mreži", "Pošiljalac postao nedostupan,\nponovo odaberite knjigu za slušanje").show();
 //                e.printStackTrace();
             }
@@ -139,8 +136,8 @@ public class Receiver extends Service<AudioBook> {
 //            e.printStackTrace();
             System.err.println("Nije moguce pokrenuti novog receivera jer je zauzeta sourceDataLine");
             new ErrorDialog("Problem pri reprodukciji", "Nije moguće pristupiti mikseru,\nponovo pokrenite aplikaciju").show();
-
         }
+        System.out.println("Ponovo pokrenut receiver");
     }
 
     public void terminate(){

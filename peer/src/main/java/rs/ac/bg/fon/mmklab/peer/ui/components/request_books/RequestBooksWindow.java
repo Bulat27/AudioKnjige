@@ -67,7 +67,7 @@ public class RequestBooksWindow {
             ServerCommunicator communicator = ServerCommunicator
                     .getInstance(configuration);
             list = ListExchanger.getAvailableBooks(communicator.getStreamFromServer(), communicator.getStreamToServer());
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             new ErrorDialog("Server nedostupan", "Server trenutno nije dostupan,\nmolimo pokušajte kasnije").show();
             return;
         }
@@ -101,6 +101,8 @@ public class RequestBooksWindow {
         } else
             System.err.println("Greska (RequestBooksTab -> showAvailableBooks): Lista nije popunjena, ostala je null");
     }
+
+
 
     public static void style(Button bookBtn) {
         DropShadow shadow = new DropShadow();

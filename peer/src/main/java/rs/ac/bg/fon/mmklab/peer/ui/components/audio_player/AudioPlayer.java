@@ -60,11 +60,20 @@ public class AudioPlayer extends Stage {
         pauseButton.setOnAction(click -> (new Signaler(Signal.PAUSE, receiver)).start());
 
 //        premotavanje preko dugmica za napred i nazad
-        forwardBtn.setOnAction(forward -> receiver.restart(receiver.getInstance().getFramesRead() + timeSlider.getMax() / 20)); // pomera samo za dvadeseti deo duzine celog zapisa
+        forwardBtn.setOnAction(forward -> {
+            new Signaler(Signal.REWIND, receiver).start();
+            receiver.restart(receiver.getInstance().getFramesRead() + timeSlider.getMax() / 20);
+        }); // pomera samo za dvadeseti deo duzine celog zapisa
 
-        backwardBtn.setOnAction(backward -> receiver.restart(receiver.getInstance().getFramesRead() - timeSlider.getMax() / 20));
+        backwardBtn.setOnAction(backward -> {
+            new Signaler(Signal.REWIND, receiver).start();
+            receiver.restart(receiver.getInstance().getFramesRead() - timeSlider.getMax() / 20);
+        });
 
-        timeSlider.setOnMouseReleased(release -> receiver.restart(timeSlider.getValue())); // premotavanje preko slajdera
+        timeSlider.setOnMouseReleased(release -> {
+            new Signaler(Signal.REWIND, receiver).start();
+            receiver.restart(timeSlider.getValue());
+        }); // premotavanje preko slajdera
 
         primaryStage.setOnCloseRequest(windowEvent -> {
             (new Signaler(Signal.TERMINATE, receiver)).start();
