@@ -22,7 +22,8 @@ import rs.ac.bg.fon.mmklab.peer.ui.components.request_books.RequestBooksWindow;
 import java.io.File;
 import java.io.IOException;
 
-public class ConfigurationWindow extends Stage {
+public class
+ConfigurationWindow extends Stage {
 
     private static Configuration configuration;
 
